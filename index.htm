@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>TypeScript HTML App</title>
+    <link rel="stylesheet" href="Styles/UndeadInvasion.css" type="text/css" />
+    
+    <script src="Libraries/Knockout/knockout-2.3.0.js" type="text/javascript"></script>
+
+    <script src='http://www.kongregate.com/javascripts/kongregate_api.js'></script>
+    <script src="http://code.createjs.com/createjs-2013.09.25.min.js" type="text/javascript"></script>    
+    
+    <script src="Libraries/jQuery/jquery-1.8.3.js" type="text/javascript"></script>
+    <script src="Libraries/Sugar/sugar-1.3.9.js" type="text/javascript"></script>
+    
+    <script src="Scripts/Config.js"></script>
+    <script src="Scripts/Game.js"></script>
+    <script src="Scripts/Actions.js"></script>
+    <script src="Scripts/VanishingEntity.js"></script>
+    <script src="Scripts/Bullet.js"></script>
+    
+    <script src="app.js"></script>
+</head>
+<body>
+    <div id="gameDiv">
+        <!-- ko if: State() == "menu" --> 
+        <div class="menu" style="position: relative; display: block; height: 0;">
+            <div class="gamelogo"></div>
+            <div class="gamemodeselection" style="position: absolute; top: 610px; left: 0; text-align: center; width: 920px;">
+                <!--<div class="title">Undead Invasion</div>-->
+                <button data-bind="click: function () { start('Easy'); }, clickBubble: false">Easy</button>
+                <button data-bind="click: function () { start('Normal'); }, clickBubble: false">Normal</button>
+                <button data-bind="click: function () { start('Hard'); }, clickBubble: false">Hard</button>
+                <br /><br /><button class="specialHidden" data-bind="click: function () { start('Ultra'); }, clickBubble: false">Ultra</button>
+            </div>
+            <!-- ko with: GameScore -->
+            <div class="gamescore">
+                <div class="label">Time Played</div>
+                <div class="time" data-bind="text: Time"></div>
+                <div class="label">Score</div>
+                <div class="score" data-bind="text: Score"></div>
+            </div>
+            <!-- /ko -->
+        </div>
+        <!-- /ko -->
+
+        <!-- ko if: State() == "game" --> 
+        <div class="interface" style="position: relative; height: 0;">
+            <div class="score" style="position: absolute; top: 8px; right: 14px;">
+                <span style="font-size: 18px;" data-bind="text: Score"></span>
+            </div>
+            <!-- ko with: Weapon -->
+            <div class="weapon">
+                <div class="icon" data-bind="style: { backgroundImage: 'url(Images/weapon_' + _settings.Image + '.png)' }"></div>
+                <!-- ko if: !AmmoRemaining() -->
+                <div class="reload">
+                    <div class="progress" data-bind="style: { width: (ReloadPercentage() * 100) + '%' }"></div>
+                </div>
+                <!-- /ko -->
+                <div class="magazin">
+                    <!-- ko foreach: new Array(AmmoMax())  -->
+                    <div class="bullet" data-bind="css: { empty: $index() >= $parent.AmmoRemaining() }, style: { width: $parent._settings.BulletWidth, height: $parent._settings.BulletHeight }"></div>
+                    <!-- /ko -->​
+                </div>
+            </div>
+            <!-- /ko -->       
+            <div class="player">
+                <div class="healthbar">
+                    <div data-bind="style: { width: HPWidth }"></div>
+                </div>
+                <div class="icon"></div>                
+            </div>
+        </div>
+        <!-- /ko -->
+
+        <canvas></canvas>
+
+        <div class="fullscreenMessage" id="messageGameOver">
+            <div class="title">Game Over</div>
+        </div>
+
+        <div id="debug">
+            <!--<div>
+                <button data-bind="click: start, clickBubble: false">start</button>
+                <button data-bind="click: stop, clickBubble: false">stop</button>
+                <button data-bind="click: reset, clickBubble: false">reset</button>
+                <button data-bind="click: function () { SwitchDifficulty('Easy') }, clickBubble: false">Easy</button>
+                <button data-bind="click: function () { SwitchDifficulty() }, clickBubble: false">Normal</button>
+                <button data-bind="click: function () { SwitchDifficulty('Hard') }, clickBubble: false">Hard</button>
+            </div>
+            <div>
+                <button data-bind="click: TestBlood, clickBubble: false">splatter blood</button>
+                <button data-bind="click: TestBones, clickBubble: false">splatter bones</button>
+                <button data-bind="click: TestSpawn, clickBubble: false">border zombie</button>
+                <button data-bind="click: TestSpawn2, clickBubble: false">random zombie</button>
+                <button data-bind="click: TestZombieDamage, clickBubble: false">damage zombies</button>
+            </div>-->
+            <!--
+            <div>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('Revolver') }, clickBubble: false">Revolver</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('Pistol') }, clickBubble: false">Pistol</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('MachineGun') }, clickBubble: false">MachineGun</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('AssaultRifle') }, clickBubble: false">AssaultRifle</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('HuntingRifle') }, clickBubble: false">HuntingRifle</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('Shotgun') }, clickBubble: false">Shotgun</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('AutoShotgun') }, clickBubble: false">AutoShotgun</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('Jackhammer') }, clickBubble: false">Jackhammer</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('Phaser') }, clickBubble: false">Phaser</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('CannonLauncher') }, clickBubble: false">Cannon</button>
+                <button class="tiny" data-bind="click: function () { EquipWeapon('IonMinigun') }, clickBubble: false">IonMinigun</button>  
+                <button class="tiny" data-bind="click: function () { EquipWeapon('PlasmaCutter') }, clickBubble: false">PlasmaCutter</button>  
+                <button class="tiny" data-bind="click: function () { EquipWeapon('FlameThrower') }, clickBubble: false">FlameThrower</button>  
+            </div>-->
+        </div>  
+    </div>  
+</body>
+</html>

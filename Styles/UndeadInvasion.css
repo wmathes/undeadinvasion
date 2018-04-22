@@ -1,0 +1,272 @@
+* {
+  font-family: Calibri; }
+
+body {
+  background-color: #222;
+  margin: 0;
+  padding: 0;
+  min-height: 700px; }
+
+.fullscreenMessage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 920px;
+  height: 700px;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none; }
+  .fullscreenMessage .title {
+    margin-top: 310px;
+    font-size: 48px;
+    line-height: 64px;
+    color: white;
+    text-align: center;
+    box-shadow: 0px 0px 10px 0px #103f36;
+    text-transform: uppercase;
+    background-color: #155348; }
+
+.gamelogo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 920px;
+  height: 700px;
+  background-image: url("../Images/menu_logo.png"); }
+
+.gamescore {
+  position: absolute;
+  top: 300px;
+  left: 200px;
+  width: 520px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  padding: 12px; }
+  .gamescore div {
+    text-align: center;
+    text-transform: uppercase; }
+  .gamescore .label {
+    color: #155348;
+    font-size: 22px;
+    line-height: 28px; }
+  .gamescore .time, .gamescore .score {
+    color: white;
+    font-size: 48px;
+    line-height: 50px; }
+  .gamescore .time {
+    margin-bottom: 18px; }
+
+button {
+  background-color: #155348;
+  color: white;
+  border: none;
+  box-shadow: 0px 0px 20px 4px #103f36;
+  line-height: 24px;
+  border-radius: 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  text-align: center;
+  width: 120px;
+  margin: 0 8px;
+  transition: all 0.2s; }
+  button:hover {
+    background-color: #29a58e;
+    cursor: pointer; }
+  button.tiny {
+    margin: 0 1px;
+    line-height: 18px;
+    font-size: 9px;
+    width: 68px;
+    border-radius: 2px;
+    box-shadow: 0px 0px 2px 1px #103f36; }
+  button.specialHidden {
+    opacity: 0.0;
+    box-shadow: 0px 0px 20px 4px maroon; }
+    button.specialHidden:hover {
+      transition: all 4s;
+      background-color: red;
+      opacity: 1.0; }
+
+.playfield {
+  overflow: hidden;
+  position: relative;
+  background-color: #332211;
+  display: block;
+  margin: 0 auto;
+  background-image: url("../Images/background.png");
+  background-size: cover;
+  background-position: center center; }
+
+#debug {
+  background-color: #332211;
+  display: block;
+  margin: 0 auto; }
+
+.interface p, .interface span {
+  color: #29a58e;
+  text-transform: uppercase;
+  font-size: 14px; }
+
+.player {
+  position: absolute;
+  top: 0;
+  right: 0; }
+  .player .icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center left;
+    background-image: url("../Images/health.png");
+    height: 36px;
+    width: 110px;
+    display: inline-block; }
+  .player .healthbar {
+    position: absolute;
+    top: 12px;
+    right: 126px;
+    height: 10px;
+    width: 94px;
+    display: inline-block;
+    background-color: #103f36; }
+    .player .healthbar div {
+      transition: width 0.12s;
+      height: 10px;
+      background-color: #29a58e;
+      width: 50%; }
+
+.weapon {
+  position: absolute;
+  top: 0;
+  left: 0; }
+  .weapon .icon {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center right;
+    height: 36px;
+    width: 110px;
+    display: inline-block; }
+  .weapon .reload {
+    position: absolute;
+    top: 8px;
+    left: 126px;
+    height: 2px;
+    width: 168px;
+    display: inline-block;
+    background-color: #155348; }
+    .weapon .reload .progress {
+      height: 2px;
+      background-color: #29a58e; }
+  .weapon .magazin {
+    position: absolute;
+    top: 12px;
+    left: 126px;
+    height: 36px;
+    width: 168px;
+    display: inline-block; }
+    .weapon .magazin .bullet {
+      background-color: #29a58e;
+      margin-right: 2px;
+      margin-bottom: 2px;
+      display: inline-block;
+      float: left; }
+    .weapon .magazin .empty {
+      opacity: 0.4; }
+
+/*
+.entity {
+	//transition: all 40ms;
+	display: inline-block;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: green;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility:    hidden;
+	-ms-backface-visibility:     hidden;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+
+	span {
+		z-index: 100;
+		color: white;
+		font-size: 9px;
+		font-weight: bold;
+	}
+}
+
+.splatter {
+	background-color: red;
+	width: 12px;
+	height: 12px;
+	display: inline-block;
+	position: absolute;
+}
+
+@keyframes picturefour 
+{
+	0% {
+		background-position: 0% center;
+	}
+	24% {
+		background-position: 0% center;
+	}
+	
+	25% {
+		background-position: 25% center;
+	}
+	49% {
+		background-position: 25% center;
+	}
+
+	50% {
+		background-position: 50% center;
+	}
+	74% {
+		background-position: 50% center;
+	}
+
+	75% {
+		background-position: 75% center;
+	}
+	99% {
+		background-position: 75% center;
+	}
+}
+
+@mixin entityVisuals {
+	position: absolute;
+	display: inline-block;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility:    hidden;
+	-ms-backface-visibility:     hidden;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+
+	background-repeat: no-repeat;
+	background-position: 0% center;
+	background-size: auto 100%;
+
+	
+	animation-iteration-count: infinite;
+	-webkit-animation-iteration-count: infinite;
+}
+
+.zombie {
+	@include entityVisuals;
+	animation: picturefour 600ms;
+	-webkit-animation: picturefour 600ms;
+	background-image: url('/Images/zombie_24_4.png');
+}
+
+.player {
+	@include entityVisuals;
+	background-color: green;
+}*/
+
