@@ -1,5 +1,4 @@
 ﻿/// <reference path="Scripts/Game.ts" />
-
 /// <reference path="Scripts/Actions.ts" />
 
 module UndeadInvasion {
@@ -89,7 +88,6 @@ module UndeadInvasion {
         }
     }
 }
-
 
 module Core {
     export class Rotation {
@@ -795,116 +793,9 @@ module Core {
     }
 }
 
-var game: UndeadInvasion.Game;
-
-
-
-// Load the API
-kongregateAPI.loadAPI(onComplete);
-
-// Callback function
-function onComplete() {
-    
-    // Set the global kongregate API object
-    kongregate = kongregateAPI.getAPI();
-
-    console.log("kongregate", kongregate);
-    console.log("STATS", kongregate["stats"]());
-    console.log("parent.kongregate", parent["kongregate"]);
-}
+let game: UndeadInvasion.Game;
 
 $(() => {
     // Instantiate Game!
     game = new UndeadInvasion.Game("gameDiv");
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    // Dancing Zombies
-    var c = 5;
-    var z: createjs.DisplayObject[] = [];
-    for (var i = 0; i < c; i++) {
-        for (var j = 0; j < c; j++) {
-            var b = new createjs.Sprite(UI.Data.SpriteSheets.Zombie(), "idle");
-
-            b.rotation = 45;
-            b.regX = 15;
-            b.regY = 13;
-            b.x = 12 + (i * 140);
-            b.y = 12 + (j * 140);
-
-            z.push(b);
-
-            entityContainer.addChild(b);
-        }
-    }
-
-    // BLood Splatter
-    var z2: VanishingEntity[] = [];
-    for (var i = 0; i < Config.Effects.Blood.Maximum; i++) {
-        var blood = new VanishingEntity(
-            "Blood",
-            Math.random() * 700,
-            Math.random() * 700,
-            groundContainer);
-
-        z2.push(blood);
-    }*/
-
-
-    /*
-        for (var i = 0; i < z.length; i++) {
-            z[i].rotation += 1;
-            z[i].x = (z[i].x + 2) % 700;
-        }
-
-        var zNew = [];
-        for (var i = 0; i < z2.length; i++) {
-            z2[i].update(event.delta);
-            if (!z2[i].isRemoved()) {
-                zNew.push(z2[i]);
-            }
-        }
-        z2 = zNew;
-        
-
-        stage.update(); 
-    }*/
-
-
-
-
-//$(() => {
-//    console.log("CHECK");
-//    var el = document.getElementById('playfield');
-//    if (el != null) {
-//        game = new Core.Game();
-//        game.start();
-//        var dj = $("#debug");
-
-//        setTimeout(() => {
-//            var asd = setInterval(() => {
-//                game.spawnEnemy();
-//                //game.spawnSplatter(Math.floor(Math.random() * 1200), Math.floor(Math.random() * 700));
-//                dj.html("EntityCount: " + game.Entities.length);
-//            }, 250);
-//        }, 1000);
-
-//    }
-//    else {
-//        console.log("No Playfield found");
-//    }
-//});

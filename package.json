@@ -1,0 +1,52 @@
+{
+  "name": "undeadinvasion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wmathes/undeadinvasion.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wmathes/undeadinvasion/issues"
+  },
+  "homepage": "https://github.com/wmathes/undeadinvasion#readme",
+  "dependencies": {
+    "phaser": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.7.0",
+    "ava": "^0.25.0",
+    "ava-ts": "^0.25.1",
+    "del-cli": "^1.1.0",
+    "fuse-box": "^3.4.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "tslint-microsoft-contrib": "^5.2.0",
+    "typescript": "^3.0.1"
+  },
+  "ava": {
+    "files": [
+      "src/**/*.spec.{js,ts}"
+    ],
+    "source": [
+      "src/**/*.{js,jsx,ts,tsx}"
+    ]
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "scripts": {
+    "bundle": "node fuse",
+    "build": "npm run clean && tsc -p .",
+    "clean": "del-cli ./lib",
+    "pretest": "del-cli ./.artifacts",
+    "test": "npm run lint -s && ava-ts -v",
+    "lint": "tslint -t stylish \"src/**/*.ts\"",
+    "lint:fix": "npm run lint -s -- --fix",
+    "semantic-release": "semantic-release",
+    "watch": "ava-ts -w"
+  }
+}

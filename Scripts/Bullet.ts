@@ -1,7 +1,5 @@
 
-
 /// <reference path="../app.ts" />
-
 
 class Bullet {
 

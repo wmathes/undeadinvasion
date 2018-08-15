@@ -103,6 +103,7 @@ interface IWeapon {
     BulletScale?: number;
     BulletFace?: number;
     TrailColor?: string[];
+    TrailWidth?: number;
     DamageBase: number;
     DamageSpread: number;
     DamageMax: number;
