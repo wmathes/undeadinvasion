@@ -5,15 +5,13 @@
  * OGG-Vorbis is optionally set as the fallback audio
  */
 export class AudioFile {
-    constructor(key: string, mp3: string, ogg?: string) {
-        this.key = key;
-        this.mp3 = mp3;
-        this.ogg = ogg;
-    }
+    constructor(
+        public key: string,
+        public mp3: string,
+        public ogg?: string
+    ) {
 
-    key: string;
-    mp3: string;
-    ogg?: string;
+    }
 }
 
 const assetDir = "./assets"; // relative to build dir

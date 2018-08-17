@@ -13,15 +13,15 @@ context(class {
             output: `${buildPath}/$name.js`,
             target: "client",
             package: {
-                name: "index",
-                main: "index.js",
+                name: "app",
+                main: "app.js",
             },
             plugins: [
                 JSONPlugin(),
                 isProduction && QuantumPlugin({
                     bakeApiIntoBundle: true,
                     replaceProcessEnv : false,
-                    target: "npm",
+                    target: "browser",
                     treeshake: true,
                     uglify: false
                 }),
@@ -30,6 +30,18 @@ context(class {
     }
 });
 
+
+task("app", async context => {
+    const fuse = context.getConfig(true);
+    fuse.bundle("app")
+        .globals({
+            "app": "*"
+        })
+        .instructions("> app.ts");
+    await fuse.run()
+});
+
+
 task("clean", async context => {
     await src(`./${buildPath}`)
         .clean(`${buildPath}/`)
@@ -37,20 +49,45 @@ task("clean", async context => {
 });
 
 task("copy-assets", async context => {
+    fs.ensureDirSync(path.join(__dirname, buildPath));
+    fs.copyFileSync(
+        path.join(__dirname, "src", "index.html"),
+        path.join(__dirname, buildPath, "index.html")
+    );
+
    await src('./assets/**/*')
        .dest(`${buildPath}/`)
        .exec();
 });
 
-task("lambda-proxy", context => {
+task("app-proxy", context => {
     fs.writeFileSync(
-        path.join(__dirname, buildPath, "lambda-proxy.js"),
-        `require('./lambda'); module.exports = $fsx.r(0);`
+        path.join(__dirname, buildPath, "app-proxy.js"),
+        `require('./app'); module.exports = $fsx.r(0);`
     );
 });
 
-task('watch', ['clean', 'cli-watch'], () => {
+task("watch", async context => {
+    const fuse = context.getConfig(true);
+    fuse.bundle("app")
+        .globals({
+            "app": "*"
+        })
+        .watch()
+        .instructions("> app.ts");
+    await fuse.run()
 });
 
-task('default', ['clean', 'copy-assets', 'lambda', 'cli', 'lambda-proxy'], () => {
+task("serve", async context => {
+    const fuse = context.getConfig();
+    fuse.dev({
+        open: "http://localhost:4444/"
+    });
+    await fuse.run();
+});
+
+task('dev', ['clean', 'copy-assets', 'watch', 'serve'], () => {
+});
+
+task('default', ['clean', 'copy-assets', 'app', 'app-proxy'], () => {
 });

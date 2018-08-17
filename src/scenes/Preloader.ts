@@ -5,6 +5,7 @@ export class Preloader extends Phaser.Scene {
         super({
             key: 'preloader',
             pack: {
+                key: 'image-assets',
                 files: [
                     { type: 'image', key: 'bar', url: './assets/images/loadBar.png' },
                     { type: 'image', key: 'barBg', url: './assets/images/barBg.png' }
@@ -15,7 +16,7 @@ export class Preloader extends Phaser.Scene {
 
     preload() {
         // add the loading bar to use as a display for the loading progress of the remainder of the assets
-        const barBg = this.add.image(this.sys.canvas.width / 2, this.sys.canvas.height / 2, 'barBg');
+        this.add.image(this.sys.canvas.width / 2, this.sys.canvas.height / 2, 'barBg');
         const bar = this.add.sprite(this.sys.canvas.width / 2, this.sys.canvas.height / 2, 'bar');
 
         const mask = this.make.graphics({
