@@ -1,0 +1,325 @@
+
+$color: darken(#34CDB1, 10%);
+$darkcolor: darken($color, 20%);
+$verydark: darken($color, 25%);
+
+* {
+	font-family: Calibri;
+}
+
+body {
+	background-color: #222;
+	margin: 0;
+	padding: 0;
+	min-height: 700px
+}
+
+.fullscreenMessage {
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	width: 920px; 
+	height: 700px; 
+	background-color: rgba(0,0,0,0.5);
+	display: none;
+
+	.title {
+		margin-top: 310px;
+		font-size: 48px;
+		line-height: 64px;
+		color: white;
+		text-align: center;
+		box-shadow: 0px 0px 10px 0px $verydark;
+		text-transform: uppercase;
+		background-color: $darkcolor;
+	}
+}
+
+.gamelogo {
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	width: 920px;
+	height: 700px;
+	background-image: url('../Images/menu_logo.png');
+}
+
+.gamescore {
+	position: absolute; 
+	top: 300px; 
+	left: 200px; 
+	width: 520px; 
+	border-radius: 8px; 
+	background-color: rgba(0, 0, 0, 0.5);
+	box-sizing: border-box;
+	padding: 12px;
+	div {
+		text-align: center;
+		text-transform: uppercase;
+	}
+	.label {
+		color: $darkcolor;
+		font-size: 22px;
+		line-height: 28px;
+	}
+	.time, .score {
+		color: white;
+		font-size: 48px;
+		line-height: 50px;
+	}
+	.time {
+		margin-bottom: 18px;
+	}
+}
+
+button {
+	background-color: $darkcolor;
+	color: white;
+	border: none;
+	box-shadow: 0px 0px 20px 4px $verydark;
+	line-height: 24px;
+	border-radius: 14px;
+	font-size: 11px;
+	text-transform: uppercase;
+	text-align: center;
+	width: 120px;
+	margin: 0 8px;
+	transition: all 0.2s;
+	&:hover {
+		background-color: $color;	
+		cursor: pointer;
+	}
+	&.tiny {
+		margin: 0 1px;
+		line-height: 18px;
+		font-size: 9px;
+		width: 68px;
+		border-radius: 2px;
+		box-shadow: 0px 0px 2px 1px $verydark;
+	}
+	&.specialHidden {
+		opacity: 0.0;		
+		box-shadow: 0px 0px 20px 4px darken(#F00, 25%);
+		&:hover {
+			transition: all 4s;
+			background-color: red;
+			opacity: 1.0;
+		}
+	}
+}
+
+.playfield {
+	overflow: hidden;
+	position: relative;
+
+	background-color: #332211;
+	display: block; 
+	margin: 0 auto;
+
+	background-image: url('../Images/background.png');
+	background-size: cover;
+	background-position: center center;
+}
+
+#debug {
+	background-color: #332211;
+	display: block; 
+	margin: 0 auto;
+}
+
+.interface {
+	p, span {
+		color: $color;
+		text-transform: uppercase;
+		font-size: 14px;
+	}
+}
+
+
+
+
+.player {
+	position: absolute; 
+	top: 0; 
+	right: 0;
+	.icon {
+		position: absolute; 
+		top: 8px; 
+		right: 8px;
+		background-repeat: no-repeat; 
+		background-size: contain; 
+		background-position: center left;
+		background-image: url('../Images/health.png');
+		height: 36px; 
+		width: 110px;
+		display: inline-block;
+	}
+	.healthbar {
+		position: absolute; 
+		top: 12px; 
+		right: 126px;		
+		height: 10px; 
+		width: 94px;
+		display: inline-block;
+		background-color: $verydark;
+		div {
+			transition: width 0.12s;
+			height: 10px; 
+			background-color: $color;
+			width: 50%;
+		}
+	}
+}
+
+
+.weapon {
+	position: absolute; 
+	top: 0; 
+	left: 0;
+	.icon {
+		position: absolute; 
+		top: 8px; 
+		left: 8px;
+		background-repeat: no-repeat; 
+		background-size: contain; 
+		background-position: center right;
+		height: 36px; 
+		width: 110px;
+		display: inline-block;
+	}
+	.reload {
+		position: absolute; 
+		top: 8px; 
+		left: 126px;		
+		height: 2px; 
+		width: 168px;
+		display: inline-block;
+		background-color: darken($color, 20%);
+		.progress {
+			height: 2px;
+			background-color: $color;
+		}
+	}
+	.magazin {
+		position: absolute; 
+		top: 12px; 
+		left: 126px;		
+		height: 36px; 
+		width: 168px;
+		display: inline-block;
+		.bullet {
+			background-color: $color;
+			margin-right: 2px;
+			margin-bottom: 2px;
+			display: inline-block;
+			float: left;
+		}
+		.empty {
+			opacity: 0.4;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+.entity {
+	//transition: all 40ms;
+	display: inline-block;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: green;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility:    hidden;
+	-ms-backface-visibility:     hidden;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+
+	span {
+		z-index: 100;
+		color: white;
+		font-size: 9px;
+		font-weight: bold;
+	}
+}
+
+.splatter {
+	background-color: red;
+	width: 12px;
+	height: 12px;
+	display: inline-block;
+	position: absolute;
+}
+
+@keyframes picturefour 
+{
+	0% {
+		background-position: 0% center;
+	}
+	24% {
+		background-position: 0% center;
+	}
+	
+	25% {
+		background-position: 25% center;
+	}
+	49% {
+		background-position: 25% center;
+	}
+
+	50% {
+		background-position: 50% center;
+	}
+	74% {
+		background-position: 50% center;
+	}
+
+	75% {
+		background-position: 75% center;
+	}
+	99% {
+		background-position: 75% center;
+	}
+}
+
+@mixin entityVisuals {
+	position: absolute;
+	display: inline-block;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility:    hidden;
+	-ms-backface-visibility:     hidden;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+
+	background-repeat: no-repeat;
+	background-position: 0% center;
+	background-size: auto 100%;
+
+	
+	animation-iteration-count: infinite;
+	-webkit-animation-iteration-count: infinite;
+}
+
+.zombie {
+	@include entityVisuals;
+	animation: picturefour 600ms;
+	-webkit-animation: picturefour 600ms;
+	background-image: url('../Images/zombie_24_4.png');
+}
+
+.player {
+	@include entityVisuals;
+	background-color: green;
+}*/

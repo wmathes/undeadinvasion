@@ -1,0 +1,26 @@
+# Bun / Node
+node_modules/
+bun.lockb
+.bun/
+npm-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs & coverage
+*.log
+coverage/
+
+# Legacy compiled output (kept for reference during migration, but not tracked going forward)
+# Uncomment these once Phase 2 is finished and the legacy .js files can be removed.
+# app.js
+# Scripts/*.js
+# Scripts/*.js.map

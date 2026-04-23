@@ -1,0 +1,13 @@
+# Bun configuration
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use the public npm registry.
+registry = "https://registry.npmjs.org/"
+# Install peer dependencies automatically.
+peer = true
+
+[test]
+# Default test command picks up tests/**/*.test.ts and src/**/*.test.ts.
+# Bun's matcher API is Jest-compatible; see bun:test docs.
+coverage = false

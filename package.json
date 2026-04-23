@@ -1,0 +1,26 @@
+{
+  "name": "undeadinvasion",
+  "version": "2.0.0",
+  "description": "Undead Invasion - modernized from the original 2013 university project.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/server.ts",
+    "build": "bun build ./index.html --outdir=dist --minify --sourcemap=linked --target=browser --asset-naming='[name]-[hash].[ext]'",
+    "preview": "bun run src/server.ts --dist",
+    "test": "bun test",
+    "typecheck": "bun x tsc --noEmit"
+  },
+  "dependencies": {
+    "@createjs/easeljs": "^2.0.2",
+    "@createjs/soundjs": "^2.0.0",
+    "@createjs/tweenjs": "^2.0.2",
+    "knockout": "^3.5.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/knockout": "^3.4.80",
+    "sass": "^1.77.0",
+    "typescript": "^5.4.0"
+  }
+}
