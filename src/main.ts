@@ -1,34 +1,24 @@
 /**
  * Application entry point.
  *
- * Phase 1 status: scaffold only. This file currently imports the stylesheet
- * and bootstraps Knockout's viewmodel with a placeholder. Phase 2 will
- * replace the placeholder with the real Game instance migrated from
- * the legacy app.ts + Scripts/*.ts sources.
+ * Bootstraps the game once the DOM is ready. Everything upstream (Knockout
+ * bindings in index.html, the sprite sheet image URLs, the sound URLs) is
+ * resolved inside Game's constructor, which also calls setGame() to expose
+ * itself to the module graph.
  */
 
-import ko from "knockout";
-import "./styles/UndeadInvasion.scss";
-
-// TODO(phase-2): import { Game } from "./game/Game";
-// TODO(phase-2): import { createViewModel } from "./ui/viewmodel";
+// Bun's bundler picks up CSS natively via this side-effect import.
+// The SCSS source lives next to this CSS for future SCSS -> CSS rebuilds
+// (run `bun x sass src/styles/UndeadInvasion.scss src/styles/UndeadInvasion.css`
+// or add a bun-plugin-sass config when we want a watched pipeline).
+import "./styles/UndeadInvasion.css";
+import { Game } from "./game/Game";
 
 function bootstrap(): void {
-    // Placeholder viewmodel so the Knockout bindings in index.html don't blow up
-    // before Phase 2 wires the real Game instance.
-    const placeholderViewModel = {
-        State: ko.observable<"menu" | "game">("menu"),
-        Score: ko.observable(0),
-        Weapon: ko.observable(null),
-        GameScore: ko.observable(null),
-        start: (_difficulty: string) => {
-            console.warn("[phase-1] start() not wired yet - Phase 2 will connect Game.");
-        },
-    };
-
-    const root = document.getElementById("gameDiv");
-    if (!root) throw new Error("#gameDiv not found in index.html");
-    ko.applyBindings(placeholderViewModel, root);
+    // Kicking off Game() wires Knockout, pointer/keyboard handlers, the
+    // EaselJS Ticker, and seeds the module-scoped `game` singleton used
+    // by actions/bullets/entities.
+    new Game("gameDiv");
 }
 
 if (document.readyState === "loading") {

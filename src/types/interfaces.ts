@@ -1,9 +1,20 @@
 /**
- * Shared game-wide types.
- *
- * Phase 1 placeholder. Phase 2 will import the contents of the legacy
- * Scripts/Interfaces.d.ts into this file and convert from `.d.ts`
- * ambient declarations to proper `export interface` declarations.
+ * Public type re-exports. Kept here so `@types/*` path alias continues to
+ * resolve for consumers that prefer importing types from `@types/...`
+ * rather than from `@game/...`.
  */
 
-export {};
+export type {
+    IBullet,
+    IEntityAction,
+    IEntityBase,
+    IEntityOptions,
+    IEnemyOptions,
+    IGameDifficulty,
+    IPowerUpOptions,
+    IVanishingEntitySettings,
+    IWeapon,
+} from "../game/interfaces";
+
+export type { IScore } from "../game/Score";
+export type { DifficultyName } from "../game/Config";

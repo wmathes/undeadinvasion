@@ -1,9 +1,34 @@
 /**
- * Barrel export for game modules.
+ * Barrel export for the game module. Import from here for convenience:
  *
- * Phase 1 placeholder. Phase 2 will re-export Game, Entity, Player,
- * PowerUp, Weapon, Bullet, Actions, Config, VanishingEntity, etc. from
- * this file so the rest of the app can `import { Game } from "@game"`.
+ *   import { Game } from "@game";
  */
 
-export {};
+export { Game } from "./Game";
+export { Bullet } from "./Bullet";
+export { Config } from "./Config";
+export type { DifficultyName } from "./Config";
+export { Input, InputKey } from "./Input";
+export { Position, Rotation } from "./Position";
+export { Score } from "./Score";
+export type { IScore } from "./Score";
+export { Sound } from "./Sound";
+export { SpriteSheetData, SpriteSheets } from "./SpriteSheetData";
+export { Tools } from "./Tools";
+export { VanishingEntity } from "./VanishingEntity";
+export { Weapon } from "./weapons/Weapon";
+export { Entity } from "./entities/Entity";
+export { Player } from "./entities/Player";
+export { PowerUp, HealPowerUp, RandomWeaponPowerUp } from "./entities/PowerUp";
+export { BaseAction, EnemyAction, PlayerControlAction, IdleAction, ApproachAction } from "./Actions";
+export type {
+    IBullet,
+    IEntityAction,
+    IEntityBase,
+    IEntityOptions,
+    IEnemyOptions,
+    IGameDifficulty,
+    IPowerUpOptions,
+    IVanishingEntitySettings,
+    IWeapon,
+} from "./interfaces";
