@@ -1,11 +1,12 @@
 /**
  * Ground-pickup power-ups (health crates, weapon microchips).
  *
- * Ported from Core.PowerUp, Core.HealPowerUp, Core.RandomWeaponPowerUp
- * in the legacy app.ts.
+ * Ported to PixiJS v7. The Bitmap -> Sprite swap is straightforward; the
+ * spawn fade, pickup radius, and expiry logic are unchanged.
  */
 
-import "createjs-module";
+import { Container, Sprite } from "pixi.js";
+import { getTexture } from "../assets";
 import { Config } from "../Config";
 import type { IEntityBase, IPowerUpOptions } from "../interfaces";
 import { Position } from "../Position";
@@ -13,17 +14,8 @@ import { game } from "../state";
 import { Tools } from "../Tools";
 
 export class PowerUp implements IEntityBase {
-    public static GetRandom(
-        container: createjs.Container,
-        x: number,
-        y: number,
-        forceWeapon: boolean = false,
-    ): PowerUp {
-        const options: IPowerUpOptions = {
-            x,
-            y,
-            pointValue: 100,
-        };
+    public static GetRandom(container: Container, x: number, y: number, forceWeapon: boolean = false): PowerUp {
+        const options: IPowerUpOptions = { x, y, pointValue: 100 };
         const rnd = Math.random();
         if (forceWeapon || rnd < 0.5) {
             return new RandomWeaponPowerUp(container, options);
@@ -32,9 +24,9 @@ export class PowerUp implements IEntityBase {
         }
     }
 
-    private _displayElement: createjs.DisplayObject | undefined;
-    public get DisplayObject(): createjs.DisplayObject | undefined {
-        return this._displayElement;
+    private _sprite: Sprite | undefined;
+    public get DisplayObject(): Sprite | undefined {
+        return this._sprite;
     }
 
     private _lifeTime: number = 0;
@@ -45,9 +37,9 @@ export class PowerUp implements IEntityBase {
     public _taken: boolean = false;
     public options: IPowerUpOptions;
 
-    private _container: createjs.Container | undefined;
+    private _container: Container | undefined;
 
-    constructor(container: createjs.Container, options: IPowerUpOptions, imagePath: string) {
+    constructor(container: Container, options: IPowerUpOptions, imagePath: string) {
         this._container = container;
         this._lifeTimeMax = game.Difficulty.PowerUpLifetime;
         this.options = options;
@@ -70,23 +62,24 @@ export class PowerUp implements IEntityBase {
     }
 
     public removeElement(): void {
-        if (this._displayElement && this._container) {
-            this._container.removeChild(this._displayElement);
+        if (this._sprite && this._container) {
+            this._container.removeChild(this._sprite);
+            this._sprite.destroy();
             this._container = undefined;
-            this._displayElement = undefined;
+            this._sprite = undefined;
         }
     }
 
     private createElement(imagePath: string): void {
-        if (this._container && !this._displayElement) {
-            const d = new createjs.Bitmap("Images/" + imagePath);
-            d.alpha = 0;
-            d.regX = 24;
-            d.regY = 15;
-            d.x = this.position.x;
-            d.y = this.position.y;
-            this._displayElement = d;
-            this._container.addChild(d);
+        if (this._container && !this._sprite) {
+            const texture = getTexture(`Images/${imagePath}`);
+            const sprite = new Sprite(texture);
+            sprite.alpha = 0;
+            sprite.pivot.set(24, 15);
+            sprite.x = this.position.x;
+            sprite.y = this.position.y;
+            this._sprite = sprite;
+            this._container.addChild(sprite);
         }
     }
 
@@ -99,14 +92,14 @@ export class PowerUp implements IEntityBase {
             this.baseTake();
         }
 
-        if (this._displayElement) {
+        if (this._sprite) {
             let alpha = 1.0;
             if (this._lifeTime < 200) {
                 alpha = this._lifeTime / 200;
             } else if (this._lifeTime > this._lifeTimeMax - 1600) {
                 alpha = 1 - (this._lifeTime - (this._lifeTimeMax - 1600)) / 1600;
             }
-            this._displayElement.alpha = alpha;
+            this._sprite.alpha = alpha;
         }
 
         this._lifeTime += delta;
@@ -118,7 +111,7 @@ export class PowerUp implements IEntityBase {
 }
 
 export class HealPowerUp extends PowerUp {
-    constructor(container: createjs.Container, options: IPowerUpOptions) {
+    constructor(container: Container, options: IPowerUpOptions) {
         super(container, options, "health.png");
     }
     public override take(): void {
@@ -127,7 +120,7 @@ export class HealPowerUp extends PowerUp {
 }
 
 export class RandomWeaponPowerUp extends PowerUp {
-    constructor(container: createjs.Container, options: IPowerUpOptions) {
+    constructor(container: Container, options: IPowerUpOptions) {
         super(container, options, "Microchip.png");
     }
     public override take(): void {
