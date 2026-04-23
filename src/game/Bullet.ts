@@ -92,20 +92,29 @@ export class Bullet {
         if (!this._sprite) return;
 
         if (this._lifeTime > 0) {
-            // Fade
+            // Fade (already time-normalised via d/1000)
             if (this._settings.FadeFactor !== 1) {
                 this._sprite.alpha *= 1 - (d / 1000) * (this._settings.FadeFactor ?? 1);
             }
 
-            // Scale
+            // Scale and Speed were legacy "once per 60fps frame" multiplications.
+            // Time-normalise so bullets grow / accelerate at the same rate per
+            // real-world second on 60Hz, 120Hz, or any other refresh rate.
+            // (Legacy symptom on high-refresh displays: flame thrower particles
+            //  expanding to fullscreen before despawning.)
+            const FRAME_MS_60 = 1000 / 60;
+            const frames = d / FRAME_MS_60;
+
             if (this._settings.ScaleFactor !== 1) {
                 const sf = this._settings.ScaleFactor ?? 1;
-                this._sprite.scale.x *= Math.sqrt(sf);
-                this._sprite.scale.y *= Math.sqrt(sf);
+                const perFrame = Math.pow(Math.sqrt(sf), frames);
+                this._sprite.scale.x *= perFrame;
+                this._sprite.scale.y *= perFrame;
             }
 
-            // Adjust speed
-            this._settings.Speed *= this._settings.SpeedFactor ?? 1;
+            if ((this._settings.SpeedFactor ?? 1) !== 1) {
+                this._settings.Speed *= Math.pow(this._settings.SpeedFactor ?? 1, frames);
+            }
 
             // Swept collision: take the full frame's travel as one segment,
             // test every entity, process hits in travel order.

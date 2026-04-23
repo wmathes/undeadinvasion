@@ -92,10 +92,10 @@ button {
   position: relative;
   background-color: #332211;
   display: block;
-  margin: 0 auto;
-  background-image: url("../../Images/background.png");
-  background-size: cover;
-  background-position: center center; }
+  margin: 0 auto; }
+  /* Background image moved into the PixiJS world as a TilingSprite in
+     src/game/Game.ts so it scrolls with the camera. The colour above is
+     a subtle fallback for any pixels outside the canvas area. */
 
 #debug {
   background-color: #332211;

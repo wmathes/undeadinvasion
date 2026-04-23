@@ -22,6 +22,7 @@ import { Assets, BaseTexture, Rectangle, Texture } from "pixi.js";
 
 /** Non-spritesheet images, loaded as plain textures. */
 const FLAT_IMAGES: readonly string[] = [
+    "Images/background.png",
     "Images/bloodSplatter_0.png",
     "Images/bones_0.png",
     "Images/health.png",

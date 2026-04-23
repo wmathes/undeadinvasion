@@ -113,12 +113,11 @@ button {
 	position: relative;
 
 	background-color: #332211;
-	display: block; 
+	display: block;
 	margin: 0 auto;
 
-	background-image: url('../../Images/background.png');
-	background-size: cover;
-	background-position: center center;
+	/* Background image lives inside the PixiJS world now (TilingSprite in
+	   src/game/Game.ts) so it scrolls with the camera. */
 }
 
 #debug {

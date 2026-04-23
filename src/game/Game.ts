@@ -15,9 +15,10 @@
  *   - container.removeAllChildren() -> container.removeChildren()
  */
 
-import { Application, Container } from "pixi.js";
+import { Application, Container, TilingSprite } from "pixi.js";
 import { Viewport } from "pixi-viewport";
 import ko from "knockout";
+import { getTexture } from "./assets";
 import { Bullet } from "./Bullet";
 import { Config } from "./Config";
 import type { DifficultyName } from "./Config";
@@ -171,6 +172,15 @@ export class Game {
         // tiny levels or very wide monitors).
         this._viewport.clamp({ direction: "all", underflow: "center" });
         this._app.stage.addChild(this._viewport);
+
+        // Tiled background sprite, full world size. Sits below every
+        // other layer so ground splatters / entities / bullets render on
+        // top of it. Because it lives inside the viewport it scrolls with
+        // the camera, unlike the legacy CSS background that was a fixed
+        // backdrop on the canvas wrapper.
+        const backgroundTexture = getTexture("Images/background.png");
+        const background = new TilingSprite(backgroundTexture, Config.World.Width, Config.World.Height);
+        this._viewport.addChild(background);
 
         // Display-tree layers (ground -> entities -> effects) live inside
         // the viewport so they move with the camera.
@@ -386,6 +396,12 @@ export class Game {
         );
 
         this.splatterBones(this._player.position.x, this._player.position.y);
+
+        // Detach the viewport follow BEFORE the sprite is destroyed; the
+        // follow plugin reads target.position every frame and would crash
+        // on the next tick otherwise.
+        this._viewport.plugins.remove("follow");
+        this._viewport.moveCenter(this._player.position.x, this._player.position.y);
 
         this._player.removeElement();
         this._player = null;
