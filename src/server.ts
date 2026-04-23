@@ -4,38 +4,64 @@
  *   bun run dev       -> bundles on the fly with HMR from src/
  *   bun run preview   -> serves the already-built dist/ directory
  *
- * Bun's HTMLRewriter / built-in bundler handles TypeScript, SCSS,
- * and asset URL rewriting automatically when we hand index.html to
- * `routes`. See https://bun.sh/docs/bundler/fullstack for the exact
- * semantics.
+ * Bun's built-in bundler handles TypeScript, CSS, and asset URL rewriting
+ * automatically when we hand index.html to `routes`. Legacy asset folders
+ * (Images/, Sounds/) are served pass-through from the project root so the
+ * dynamic `"Images/bullet_" + type + ".png"` references in game code keep
+ * working without an intermediate copy step.
  */
 
 import { serve } from "bun";
+import { join } from "node:path";
 import indexHtml from "../index.html";
 
+// process.cwd() returns a native OS path (C:\... on Windows, /... on Unix).
+// This is more robust than deriving from import.meta.url, which yields a
+// file:// URL with awkward leading slashes on Windows.
+const PROJECT_ROOT = process.cwd();
+const DIST = join(PROJECT_ROOT, "dist");
 const PREVIEW = process.argv.includes("--dist");
 const PORT = Number(process.env.PORT ?? 3000);
-const PROJECT_ROOT = new URL("..", import.meta.url).pathname;
+
+/** Static asset folders served directly from the project root during dev. */
+const PASS_THROUGH_PREFIXES = ["/Images/", "/Sounds/", "/Styles/"];
+
+async function servePassThroughAsset(pathname: string, root: string): Promise<Response | null> {
+    for (const prefix of PASS_THROUGH_PREFIXES) {
+        if (pathname.startsWith(prefix)) {
+            // pathname begins with "/", join() handles the separator itself
+            const diskPath = join(root, pathname);
+            const file = Bun.file(diskPath);
+            if (await file.exists()) {
+                return new Response(file);
+            }
+        }
+    }
+    return null;
+}
 
 if (PREVIEW) {
     // Static file server for the production build output.
-    const DIST = `${PROJECT_ROOT}dist`;
     serve({
         port: PORT,
         async fetch(req) {
             const url = new URL(req.url);
-            let path = url.pathname === "/" ? "/index.html" : url.pathname;
-            const file = Bun.file(DIST + path);
+            const path = url.pathname === "/" ? "/index.html" : url.pathname;
+
+            const file = Bun.file(join(DIST, path));
             if (await file.exists()) return new Response(file);
+
+            // Fall back to legacy asset folders (if they weren't copied into dist).
+            const asset = await servePassThroughAsset(url.pathname, PROJECT_ROOT);
+            if (asset) return asset;
+
             // SPA-style fallback to index.html
-            return new Response(Bun.file(`${DIST}/index.html`));
+            return new Response(Bun.file(join(DIST, "index.html")));
         },
     });
     console.log(`[preview] serving dist/ on http://localhost:${PORT}`);
 } else {
     // Dev mode: Bun bundles index.html + its module graph on demand.
-    // Static asset folders (Images/, Sounds/) are served pass-through from the
-    // project root so we don't need an intermediate copy step during Phase 1.
     serve({
         port: PORT,
         development: true,
@@ -45,18 +71,12 @@ if (PREVIEW) {
         },
         async fetch(req) {
             const url = new URL(req.url);
-            // Serve legacy asset folders directly from the project root.
-            if (
-                url.pathname.startsWith("/Images/") ||
-                url.pathname.startsWith("/Sounds/") ||
-                url.pathname.startsWith("/Styles/")
-            ) {
-                const file = Bun.file(PROJECT_ROOT + url.pathname.slice(1));
-                if (await file.exists()) return new Response(file);
-            }
+            const asset = await servePassThroughAsset(url.pathname, PROJECT_ROOT);
+            if (asset) return asset;
             return new Response("Not Found", { status: 404 });
         },
     });
     console.log(`[dev] serving on http://localhost:${PORT}`);
     console.log(`[dev] HMR enabled; edits under src/ reload automatically.`);
+    console.log(`[dev] asset pass-through: ${PASS_THROUGH_PREFIXES.join(", ")}`);
 }

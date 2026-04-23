@@ -1,23 +1,19 @@
 /**
  * Application entry point.
  *
- * Bootstraps the game once the DOM is ready. Everything upstream (Knockout
- * bindings in index.html, the sprite sheet image URLs, the sound URLs) is
- * resolved inside Game's constructor, which also calls setGame() to expose
- * itself to the module graph.
+ * Bootstraps the game once the DOM is ready. Import order matters:
+ *   1. createjs-bootstrap - populates globalThis.createjs so every other
+ *      module can reference `createjs.Stage`, `createjs.Ticker`, etc.
+ *   2. Stylesheet - side-effect import, bundled by Bun.
+ *   3. Game - entry class; its constructor wires Knockout, pointer/keyboard
+ *      handlers, the EaselJS Ticker, and the module-scoped `game` singleton.
  */
 
-// Bun's bundler picks up CSS natively via this side-effect import.
-// The SCSS source lives next to this CSS for future SCSS -> CSS rebuilds
-// (run `bun x sass src/styles/UndeadInvasion.scss src/styles/UndeadInvasion.css`
-// or add a bun-plugin-sass config when we want a watched pipeline).
+import "./game/createjs-bootstrap";
 import "./styles/UndeadInvasion.css";
 import { Game } from "./game/Game";
 
 function bootstrap(): void {
-    // Kicking off Game() wires Knockout, pointer/keyboard handlers, the
-    // EaselJS Ticker, and seeds the module-scoped `game` singleton used
-    // by actions/bullets/entities.
     new Game("gameDiv");
 }
 
