@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --bun run --hot ./src/server.ts",
-    "build": "bun build ./index.html --outdir=dist --minify --sourcemap=linked --target=browser --asset-naming='[name]-[hash].[ext]'",
+    "build": "bun build ./index.html --outdir=dist --minify --sourcemap=linked --target=browser --asset-naming='[name]-[hash].[ext]' && bun run scripts/copy-assets.ts",
     "preview": "bun run src/server.ts --dist",
     "test": "bun test",
     "typecheck": "bun x tsc --noEmit"

@@ -8,12 +8,14 @@
  *   3. Game - entry class; its constructor wires Knockout, pointer/keyboard
  *      handlers, the EaselJS Ticker, and the module-scoped `game` singleton.
  */
-
+import.meta.hot.accept;
 import "./game/createjs-bootstrap";
 import "./styles/UndeadInvasion.css";
 import { Game } from "./game/Game";
+import { installResponsiveScaling } from "./responsive";
 
 function bootstrap(): void {
+    installResponsiveScaling();
     new Game("gameDiv");
 }
 

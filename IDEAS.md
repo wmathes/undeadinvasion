@@ -10,7 +10,8 @@ Deferred ideas from the modernization effort. None of these block playability on
 ## Engine
 
 - **Consider migrating rendering off EaselJS.** EaselJS is abandoned (no Adobe updates since ~2015). Candidate replacements in order of effort: (1) vanilla Canvas 2D with a thin sprite helper — minimal deps, preserves all existing art; (2) PixiJS — GPU-accelerated, similar display-tree API to EaselJS so sprite/stage code ports cleanly; (3) Phaser — full game framework, would require rewriting the entity/weapon/action system against Phaser's scene and physics model.
-- **Replace CreateJS SoundJS with native Web Audio API.** Five sound files, three of them tiny SFX. A ~80-line `AudioManager` class with an `AudioContext`, a buffer map, and volume envelopes would replace SoundJS entirely.
+- **Replace CreateJS SoundJS with native Web Audio API.** Five sound files, three of them tiny SFX. A ~80-line `AudioManager` replacement with an `AudioContext`, a buffer map, and volume envelopes would drop SoundJS entirely. The current `src/game/Sound.ts` already wraps createjs.Sound in a minimal `AudioManager` singleton that registers each file once and plays on demand - the re-skin to Web Audio would only need to swap the backend without touching call sites.
+- **Wire up unused sound files.** The repo ships `bgm_game.mp3`, `bgm_menu.mp3`, `weapon_Phaser.mp3`, and `zombie_die.mp3` but only `bloodsplash` is currently played. Two BGM tracks loop-swapping on state change (menu <-> game) plus per-weapon fire SFX and a death cue on zombie kills would give the game a lot more personality for roughly a dozen lines of code.
 - **Introduce a proper entity-component system.** Current `_action: IEntityAction` pattern is close to a strategy/behavior pattern but `Entity` still owns a lot of state that belongs to components (health, velocity, sprite). A true ECS would make new enemy types trivial.
 
 ## Gameplay / Content

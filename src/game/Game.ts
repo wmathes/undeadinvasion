@@ -20,7 +20,7 @@ import type { DifficultyName } from "./Config";
 import type { IBullet, IEntityBase, IGameDifficulty } from "./interfaces";
 import { Input } from "./Input";
 import { Score } from "./Score";
-import { Sound } from "./Sound";
+import { AudioManager, Sound } from "./Sound";
 import { setGame } from "./state";
 import { VanishingEntity } from "./VanishingEntity";
 import { Weapon } from "./weapons/Weapon";
@@ -121,11 +121,12 @@ export class Game {
             return;
         }
 
-        // Fixed internal resolution (CSS can scale this down for mobile)
+        // Fixed internal resolution. CSS (#gameDiv in UndeadInvasion.css) owns
+        // the display size and responsively scales via a CSS custom property
+        // driven by src/responsive.ts - we deliberately don't set inline
+        // width/height on the playfield here.
         canvasElement.width = Config.Game.Width;
         canvasElement.height = Config.Game.Height;
-        playfield.style.width = Config.Game.Width + "px";
-        playfield.style.height = Config.Game.Height + "px";
 
         // Stage
         this._stage = new createjs.Stage(canvasElement);
@@ -177,6 +178,11 @@ export class Game {
         if (this._messageGameOver) {
             this._messageGameOver.style.display = "none";
         }
+
+        // Preload SFX so the first splatter / death sound doesn't race the
+        // file load. BGM files exist too (bgm_game.mp3, bgm_menu.mp3) but
+        // the original never played them - tracked in IDEAS.md.
+        AudioManager.preloadAll(["bloodsplash", "zombie_die", "weapon_Phaser"]);
     }
 
     // -------- Public API --------

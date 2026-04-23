@@ -270,3 +270,40 @@ button {
 	background-color: green;
 }*/
 
+
+/* ---------- Responsive layout (Phase 4 modernization) ---------- */
+
+/*
+ * The entire game (#gameDiv with its canvas, menu, and HUD) lives in a
+ * fixed 920x700 layout box. To fit phones and smaller windows we scale
+ * the whole block uniformly via a CSS custom property set from
+ * src/responsive.ts. The canvas's internal resolution stays the same
+ * so gameplay coordinates, sprite sizes, and hit detection don't change.
+ */
+
+html, body {
+    height: 100%;
+    overflow: hidden; /* prevent mobile rubber-band scroll */
+}
+
+body {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gameDiv {
+    position: relative;
+    width: 920px;
+    height: 700px;
+    flex: none;
+    transform-origin: center center;
+    transform: scale(var(--game-scale, 1));
+}
+
+/* Canvas: prevent default touch gestures so pointer-drag fires and aims. */
+#gameDiv canvas {
+    touch-action: none;
+    user-select: none;
+}

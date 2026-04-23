@@ -4,11 +4,51 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="init: phase 2-3 - module rewiring">
+    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="init: phase 2-3 - module rewiring - fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/easeljs.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/jquery-1.8.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/jquery.cookie.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/knockout-2.3.0.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/soundjs.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/sugar-1.3.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Definitions/tweenjs.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDEAS.md" beforeDir="false" afterPath="$PROJECT_DIR$/IDEAS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/EaselJS/easeljs-0.7.0.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/EaselJS/easeljs-NEXT.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/EaselJS/movieclip-0.7.0.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/EaselJS/movieclip-NEXT.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/Knockout/knockout-2.3.0.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/Sugar/sugar-1.3.8.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/Sugar/sugar-1.3.9.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/Sugar/sugar-1.3.9.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/jQuery/jquery-1.8.3.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/jQuery/jquery-1.8.3.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/jQuery/jquery-1.8.3.min.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Libraries/jQuery/jquery.cookie-1.3.1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Actions.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Actions.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Bullet.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Bullet.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Bullet.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Config.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Game.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Game.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Interfaces.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/VanishingEntity.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/VanishingEntity.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/kongregate.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Styles/UndeadInvasion.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Styles/UndeadInvasion.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Game.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/styles/UndeadInvasion.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/UndeadInvasion.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/UndeadInvasion.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/UndeadInvasion.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,7 +269,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1464578910348</updated>
-      <workItem from="1776953160920" duration="2555000" />
+      <workItem from="1776953160920" duration="3442000" />
     </task>
     <task id="LOCAL-00001" summary="init: phase 1 - scaffold only,">
       <option name="closed" value="true" />
@@ -247,7 +287,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776955105540</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="init: phase 2-3 - module rewiring - fixes">
+      <option name="closed" value="true" />
+      <created>1776956009935</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1776956009935</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -282,7 +330,6 @@
         <option value="$PROJECT_DIR$/Scripts/Actions.js" />
         <option value="$PROJECT_DIR$/Scripts/VanishingEntity.js" />
         <option value="$PROJECT_DIR$/Scripts/Game.js" />
-        <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/Scripts/Config.js" />
         <option value="$PROJECT_DIR$/Scripts/Config.js.map" />
       </list>
@@ -302,7 +349,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init: phase 1 - scaffold only," />
     <MESSAGE value="init: phase 2-3 - module rewiring" />
-    <option name="LAST_COMMIT_MESSAGE" value="init: phase 2-3 - module rewiring" />
+    <MESSAGE value="init: phase 2-3 - module rewiring - fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="init: phase 2-3 - module rewiring - fixes" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Scripts/Actions.ts">
