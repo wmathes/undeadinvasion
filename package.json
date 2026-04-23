@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "knockout": "^3.5.1",
+    "pixi-viewport": "^5.0.3",
     "pixi.js": "^7.4.2"
   },
   "devDependencies": {

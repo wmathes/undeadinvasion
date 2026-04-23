@@ -16,6 +16,18 @@ describe("Config.Game", () => {
     });
 });
 
+describe("Config.World", () => {
+    test("world is at least as large as the viewport", () => {
+        expect(Config.World.Width).toBeGreaterThanOrEqual(Config.Game.Width);
+        expect(Config.World.Height).toBeGreaterThanOrEqual(Config.Game.Height);
+    });
+
+    test("world dimensions are positive numbers", () => {
+        expect(Config.World.Width).toBeGreaterThan(0);
+        expect(Config.World.Height).toBeGreaterThan(0);
+    });
+});
+
 describe("Config.Difficulties", () => {
     const expectedKeys = ["Easy", "Normal", "Hard", "Ultra"] as const;
 

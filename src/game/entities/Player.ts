@@ -23,8 +23,8 @@ export class Player extends Entity {
             regY: 15,
             pointValue: 0,
             scale: 1,
-            x: Config.Game.Width / 2,
-            y: Config.Game.Height / 2,
+            x: Config.World.Width / 2,
+            y: Config.World.Height / 2,
         });
 
         this.hp = 100;
@@ -95,7 +95,7 @@ export class Player extends Entity {
             this.position.x -= runspeedFactor * distance;
         }
 
-        this.position.crop(Config.Game.Width - 20, Config.Game.Height - 20, 20, 20);
+        this.position.crop(Config.World.Width - 20, Config.World.Height - 20, 20, 20);
         this.updateDisplayElement();
     }
 }

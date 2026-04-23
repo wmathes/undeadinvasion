@@ -9,9 +9,26 @@
 import type { IGameDifficulty, IVanishingEntitySettings } from "./interfaces";
 
 export const Config = {
+    /**
+     * Viewport / canvas resolution - how many pixels the renderer draws
+     * per frame. Kept at 900x700 for parity with the 2013 build. Display
+     * size on screen is CSS-scaled from here (see src/responsive.ts).
+     */
     Game: {
         Width: 900,
         Height: 700,
+    },
+    /**
+     * Gameplay world size - the bounded area entities can spawn and move
+     * through. The camera (Viewport) moves over this world following the
+     * player; on screens smaller than the world, only a slice is visible.
+     *
+     * Bumped past viewport size so the camera has room to scroll. Later
+     * per-level configuration (roadmap step 7) will override this per map.
+     */
+    World: {
+        Width: 1800,
+        Height: 1400,
     },
     Difficulties: {
         Easy: {

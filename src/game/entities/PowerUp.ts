@@ -44,8 +44,8 @@ export class PowerUp implements IEntityBase {
         this._lifeTimeMax = game.Difficulty.PowerUpLifetime;
         this.options = options;
 
-        this.position.x = this.options.x ?? Math.random() * Config.Game.Width;
-        this.position.y = this.options.y ?? Math.random() * Config.Game.Height;
+        this.position.x = this.options.x ?? Math.random() * Config.World.Width;
+        this.position.y = this.options.y ?? Math.random() * Config.World.Height;
 
         this.createElement(imagePath);
     }

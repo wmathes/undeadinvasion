@@ -217,8 +217,8 @@ export class Bullet {
         return (
             this._sprite.x < -20 ||
             this._sprite.y < -20 ||
-            this._sprite.x > Config.Game.Width + 20 ||
-            this._sprite.y > Config.Game.Height + 20
+            this._sprite.x > Config.World.Width + 20 ||
+            this._sprite.y > Config.World.Height + 20
         );
     }
 

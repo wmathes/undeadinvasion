@@ -4,26 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="init: finished">
+    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="migrate: remove CreateJS modules; refactor to PixiJS with centralized asset preloader and Web Audio API">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IDEAS.md" beforeDir="false" afterPath="$PROJECT_DIR$/IDEAS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bun.lock" beforeDir="false" afterPath="$PROJECT_DIR$/bun.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/Bullet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Bullet.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Config.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/Game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Game.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/Sound.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Sound.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/SpriteSheetData.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/Tools.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Tools.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/VanishingEntity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/VanishingEntity.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/createjs-bootstrap.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/createjs-module.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Input.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Input.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/entities/Entity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/Entity.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/entities/Player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/Player.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/entities/PowerUp.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/PowerUp.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Tools.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Tools.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Config.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Config.test.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,6 +101,11 @@
     </leaf>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" />
@@ -120,6 +116,9 @@
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
   <component name="PhpServers">
     <servers />
@@ -204,7 +203,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "feat/pixijs-conversion",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "C:/git/wmathes/undeadinvasion",
@@ -244,7 +243,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1464578910348</updated>
-      <workItem from="1776953160920" duration="6520000" />
+      <workItem from="1776953160920" duration="8109000" />
     </task>
     <task id="LOCAL-00001" summary="init: phase 1 - scaffold only,">
       <option name="closed" value="true" />
@@ -278,7 +277,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776957157096</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="migrate: remove CreateJS modules; refactor to PixiJS with centralized asset preloader and Web Audio API">
+      <option name="closed" value="true" />
+      <created>1776963272694</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776963272694</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -335,7 +342,8 @@
     <MESSAGE value="init: phase 2-3 - module rewiring - fixes" />
     <MESSAGE value="cleanup: remove outdated TypeScript definitions for EaselJS, jQuery, and related plugins" />
     <MESSAGE value="init: finished" />
-    <option name="LAST_COMMIT_MESSAGE" value="init: finished" />
+    <MESSAGE value="migrate: remove CreateJS modules; refactor to PixiJS with centralized asset preloader and Web Audio API" />
+    <option name="LAST_COMMIT_MESSAGE" value="migrate: remove CreateJS modules; refactor to PixiJS with centralized asset preloader and Web Audio API" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Scripts/Actions.ts">

@@ -16,6 +16,7 @@
  */
 
 import { Application, Container } from "pixi.js";
+import { Viewport } from "pixi-viewport";
 import ko from "knockout";
 import { Bullet } from "./Bullet";
 import { Config } from "./Config";
@@ -40,13 +41,24 @@ export class Game {
 
     // -------- Pixi application + display tree --------
     private _app!: Application;
+    private _viewport!: Viewport;
     private _groundContainer!: Container;
     private _entityContainer!: Container;
     private _effectContainer!: Container;
 
-    /** Root container exposed for later viewport/camera work (step 3). */
+    /** Root container - the Pixi stage itself. */
     public get Stage(): Container {
         return this._app.stage;
+    }
+
+    /**
+     * The game world camera. Ground/entity/effect containers all live
+     * under this viewport, and the viewport transform translates world
+     * coordinates to screen coordinates each frame. Exposed for future
+     * consumers that need screen<->world conversion (e.g. mobile UI).
+     */
+    public get Viewport(): Viewport {
+        return this._viewport;
     }
 
     // -------- Observables (Knockout-bound) --------
@@ -142,16 +154,38 @@ export class Game {
             resolution: window.devicePixelRatio || 1,
         });
 
-        // Display-tree layers (ground -> entities -> effects)
+        // Camera. Viewport is a PIXI.Container subclass that transforms
+        // everything inside it per-frame. World coordinates are preserved
+        // on all entities/bullets/effects; the viewport handles the
+        // translation/scale so that the player-centered region of the
+        // world fills the screen.
+        this._viewport = new Viewport({
+            screenWidth: Config.Game.Width,
+            screenHeight: Config.Game.Height,
+            worldWidth: Config.World.Width,
+            worldHeight: Config.World.Height,
+            events: this._app.renderer.events,
+        });
+        // Don't let the camera scroll past the world edges. underflow:'center'
+        // centers the world when it's smaller than the viewport (e.g. future
+        // tiny levels or very wide monitors).
+        this._viewport.clamp({ direction: "all", underflow: "center" });
+        this._app.stage.addChild(this._viewport);
+
+        // Display-tree layers (ground -> entities -> effects) live inside
+        // the viewport so they move with the camera.
         this._groundContainer = new Container();
         this._entityContainer = new Container();
         this._effectContainer = new Container();
-        this._app.stage.addChild(this._groundContainer, this._entityContainer, this._effectContainer);
+        this._viewport.addChild(this._groundContainer, this._entityContainer, this._effectContainer);
 
         // Game loop tick - Pixi ticker delta is in "frames" but .deltaMS
-        // carries the real milliseconds the game logic expects.
+        // carries the real milliseconds the game logic expects. The
+        // viewport needs its own update call for follow/easing plugins.
         this._app.ticker.add(() => {
-            this.tick(this._app.ticker.deltaMS);
+            const dt = this._app.ticker.deltaMS;
+            this.tick(dt);
+            this._viewport.update(dt);
         });
 
         // Default difficulty so SwitchDifficulty() has something to fall back on
@@ -162,15 +196,31 @@ export class Game {
         ko.cleanNode(body);
         ko.applyBindings(this, body);
 
-        // Pointer events (unified mouse + touch)
+        // Pointer events (unified mouse + touch). We feed two things into
+        // the Input system:
+        //   1. Button-press state (left mouse / touch down) for firing
+        //   2. Cursor position in WORLD coordinates (not screen), so that
+        //      the player's aim calculation compares world-vs-world.
+        // The screen->world conversion uses the viewport's current
+        // transform, so aim stays correct as the camera scrolls.
+        const toWorld = (screenX: number, screenY: number): { x: number; y: number } => {
+            const p = this._viewport.toWorld(screenX, screenY);
+            return { x: p.x, y: p.y };
+        };
         canvasElement.addEventListener("pointerdown", (e) => {
             canvasElement.setPointerCapture(e.pointerId);
+            const w = toWorld(e.offsetX, e.offsetY);
+            this.Input.setCursorWorld(w.x, w.y);
             this.Input.handlePointerDown(e);
         });
         canvasElement.addEventListener("pointerup", (e) => {
+            const w = toWorld(e.offsetX, e.offsetY);
+            this.Input.setCursorWorld(w.x, w.y);
             this.Input.handlePointerUp(e);
         });
         canvasElement.addEventListener("pointermove", (e) => {
+            const w = toWorld(e.offsetX, e.offsetY);
+            this.Input.setCursorWorld(w.x, w.y);
             this.Input.handlePointerMove(e);
         });
         canvasElement.style.touchAction = "none";
@@ -220,19 +270,32 @@ export class Game {
             let y = 0;
 
             if (borderSpawn) {
+                // Spawn at the VIEWPORT edges (where the player can almost
+                // see), not the world edges. This keeps combat density
+                // comparable to the pre-camera game regardless of how
+                // large the current level's world gets. Clamp to world
+                // bounds so we never spawn outside walkable area on tiny
+                // maps or near the world corners.
+                const vw = Config.Game.Width;
+                const vh = Config.Game.Height;
+                const cx = this._viewport.center.x;
+                const cy = this._viewport.center.y;
+
                 const r = Math.floor(Math.random() * 4);
                 if (r === 0 || r === 2) {
-                    x = Math.random() * Config.Game.Width;
-                    y = Math.random() * (Config.Game.Height * 0.1);
-                    if (r === 2) y += Config.Game.Height * 0.9;
+                    x = cx - vw / 2 + Math.random() * vw;
+                    y = cy - vh / 2 + Math.random() * (vh * 0.1);
+                    if (r === 2) y += vh * 0.9;
                 } else {
-                    y = Math.random() * Config.Game.Height;
-                    x = Math.random() * (Config.Game.Width * 0.1);
-                    if (r === 1) x += Config.Game.Width * 0.9;
+                    y = cy - vh / 2 + Math.random() * vh;
+                    x = cx - vw / 2 + Math.random() * (vw * 0.1);
+                    if (r === 1) x += vw * 0.9;
                 }
+                x = Math.max(0, Math.min(Config.World.Width, x));
+                y = Math.max(0, Math.min(Config.World.Height, y));
             } else {
-                x = Math.random() * Config.Game.Width;
-                y = Math.random() * Config.Game.Height;
+                x = Math.random() * Config.World.Width;
+                y = Math.random() * Config.World.Height;
             }
 
             const scale = 0.75 + Math.random() * 0.75;
@@ -258,6 +321,22 @@ export class Game {
         const player = new Player(this._entityContainer);
         this._player = player;
         this.Weapon(Weapon.Pistol());
+
+        // Camera tracks the player. `radius` gives rubber-band feel:
+        // the camera only chases once the player steps outside this pixel
+        // radius from the current camera centre, producing a dead-zone
+        // around the player's immediate movement.
+        const playerSprite = player.DisplayObject;
+        if (playerSprite) {
+            this._viewport.follow(playerSprite, {
+                speed: 0, // 0 = snappy; raise (e.g. 8) for more inertia
+                acceleration: null,
+                radius: 80,
+            });
+        } else {
+            // Fallback: jump camera to player position once without follow
+            this._viewport.moveCenter(player.position.x, player.position.y);
+        }
     }
 
     public reset(difficulty?: DifficultyName | string): void {
@@ -278,6 +357,10 @@ export class Game {
         this._effectContainer.removeChildren();
         this._groundContainer.removeChildren();
         this._entityContainer.removeChildren();
+
+        // Detach the camera follow so the viewport doesn't chase a freed sprite.
+        this._viewport.plugins.remove("follow");
+        this._viewport.moveCenter(Config.World.Width / 2, Config.World.Height / 2);
     }
 
     public start(difficulty?: DifficultyName | string): void {

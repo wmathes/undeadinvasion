@@ -56,8 +56,8 @@ export class Entity implements IEntityBase {
         this.rotation.angle = Math.random() * 360;
 
         // Position (options-provided or random)
-        this.position.x = entityOptions.x ?? Math.random() * Config.Game.Width;
-        this.position.y = entityOptions.y ?? Math.random() * Config.Game.Height;
+        this.position.x = entityOptions.x ?? Math.random() * Config.World.Width;
+        this.position.y = entityOptions.y ?? Math.random() * Config.World.Height;
 
         this.createElement();
         this.updateDisplayElement();
@@ -178,7 +178,7 @@ export class Entity implements IEntityBase {
         if (this.hp > 0) {
             this._action.update(delta);
             this.updateAttack(delta);
-            this.position.overLoop(Config.Game.Width, Config.Game.Height, 40, 40);
+            this.position.overLoop(Config.World.Width, Config.World.Height, 40, 40);
             this.updateDisplayElement();
         } else {
             this._deathTime += delta;
