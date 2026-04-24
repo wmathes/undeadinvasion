@@ -128,3 +128,75 @@ describe("Tools.GetAngleOffsetByPosition", () => {
         expect(Tools.GetAngleOffsetByPosition(from, to, rot)).toBeCloseTo(45, 5);
     });
 });
+
+describe("Tools.GetSegmentPointDistance", () => {
+    test("point on segment midpoint -> distance 0, t 0.5", () => {
+        const a = new Position(0, 0);
+        const b = new Position(10, 0);
+        const p = new Position(5, 0);
+        const r = Tools.GetSegmentPointDistance(a, b, p);
+        expect(r.distance).toBe(0);
+        expect(r.t).toBeCloseTo(0.5, 5);
+    });
+
+    test("point above segment midpoint -> distance equal to height", () => {
+        const a = new Position(0, 0);
+        const b = new Position(10, 0);
+        const p = new Position(5, 3);
+        const r = Tools.GetSegmentPointDistance(a, b, p);
+        expect(r.distance).toBe(3);
+        expect(r.t).toBeCloseTo(0.5, 5);
+    });
+
+    test("point before the segment -> clamps t to 0, distance to endpoint a", () => {
+        const a = new Position(0, 0);
+        const b = new Position(10, 0);
+        const p = new Position(-3, 0);
+        const r = Tools.GetSegmentPointDistance(a, b, p);
+        expect(r.distance).toBe(3);
+        expect(r.t).toBe(0);
+    });
+
+    test("point past the segment -> clamps t to 1, distance to endpoint b", () => {
+        const a = new Position(0, 0);
+        const b = new Position(10, 0);
+        const p = new Position(13, 0);
+        const r = Tools.GetSegmentPointDistance(a, b, p);
+        expect(r.distance).toBe(3);
+        expect(r.t).toBe(1);
+    });
+
+    test("degenerate segment (a == b) -> distance is point-to-a", () => {
+        const a = new Position(5, 5);
+        const b = new Position(5, 5);
+        const p = new Position(5, 9);
+        const r = Tools.GetSegmentPointDistance(a, b, p);
+        expect(r.distance).toBe(4);
+        expect(r.t).toBe(0);
+    });
+
+    test("symmetry: swapping endpoints reverses t but preserves distance", () => {
+        const a = new Position(0, 0);
+        const b = new Position(10, 0);
+        const p = new Position(7, 0);
+        const forward = Tools.GetSegmentPointDistance(a, b, p);
+        const reverse = Tools.GetSegmentPointDistance(b, a, p);
+        expect(reverse.distance).toBe(forward.distance);
+        expect(reverse.t).toBeCloseTo(1 - forward.t, 5);
+    });
+
+    test("catches fast bullet passing thin target (regression for pass-through bug)", () => {
+        // A Phaser bullet travels ~42px per frame at its native 2500 px/s.
+        // Simulate a zombie 5px to the side of the travel path. Under the
+        // old 15-px-substep algorithm this could miss depending on where
+        // the sample points landed. The swept test always catches it.
+        const bulletPrev = new Position(0, 0);
+        const bulletCur = new Position(42, 0);
+        const zombie = new Position(20, 5);
+        const r = Tools.GetSegmentPointDistance(bulletPrev, bulletCur, zombie);
+        // Bullet radius (12) + zombie radius (24 * 0.4 = 9.6) = 21.6
+        // Closest approach is 5. 5 < 21.6, so it should be a hit.
+        expect(r.distance).toBe(5);
+        expect(r.distance).toBeLessThan(21.6);
+    });
+});

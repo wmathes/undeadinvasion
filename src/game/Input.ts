@@ -1,17 +1,12 @@
 /**
  * Keyboard and pointer input management.
  *
- * Ported from UndeadInvasion.Input / UndeadInvasion.InputKey in the legacy
- * Scripts/Game.ts. Key differences from the original:
- *
- *   1. jQuery event handlers replaced with native DOM addEventListener.
- *   2. `event.keyCode` (deprecated) kept for compatibility with the
- *      InputKey constructors' numeric key maps - but we could move to
- *      `event.code` in a future pass (tracked in IDEAS.md).
- *   3. Pointer Events are used instead of separate mouse/touch handlers,
- *      so the game works on phones and tablets with no code duplication.
- *   4. The Chrome / IE / Firefox offsetX fallback chain is gone - Pointer
- *      Events provide offsetX / offsetY natively in all modern browsers.
+ * Since step 3 of the modernisation, cursor position is stored in WORLD
+ * coordinates (not screen). Game.ts owns the screen->world conversion
+ * via viewport.toWorld() before calling setCursorWorld(). The upshot is
+ * that `input.CursorPosition` can be fed directly into world-space
+ * calculations (Tools.GetAngle(player.position, input.CursorPosition))
+ * with no further translation, even as the camera scrolls.
  */
 
 import { Position } from "./Position";
@@ -83,9 +78,20 @@ export class Input {
         return this._inputKeyLiteral["fire"]!;
     }
 
+    /** Cursor position in WORLD coordinates, set by Game.ts via setCursorWorld. */
     private _cursorPosition: Position = new Position();
     public get CursorPosition(): Position {
         return this._cursorPosition;
+    }
+
+    /**
+     * Update the cursor's world position. Called by Game.ts from each
+     * pointer event after running the screen coordinate through
+     * viewport.toWorld().
+     */
+    public setCursorWorld(x: number, y: number): void {
+        this._cursorPosition.x = x;
+        this._cursorPosition.y = y;
     }
 
     constructor() {
@@ -126,27 +132,20 @@ export class Input {
     }
 
     public handlePointerDown(event: PointerEvent): void {
-        this.updatePointerPosition(event);
         if (this.update("MOUSE_" + event.button, true)) {
             event.preventDefault();
         }
     }
 
     public handlePointerUp(event: PointerEvent): void {
-        this.updatePointerPosition(event);
         if (this.update("MOUSE_" + event.button, false)) {
             event.preventDefault();
         }
     }
 
-    public handlePointerMove(event: PointerEvent): void {
-        this.updatePointerPosition(event);
-    }
-
-    private updatePointerPosition(event: PointerEvent): void {
-        // Pointer Events expose offsetX / offsetY consistently across browsers.
-        // On touch devices these still behave correctly.
-        this._cursorPosition.x = event.offsetX;
-        this._cursorPosition.y = event.offsetY;
+    public handlePointerMove(_event: PointerEvent): void {
+        // Cursor-position update is handled by Game.ts before this runs,
+        // via setCursorWorld(). This method is kept for future hook points
+        // (hover-triggered UI, etc.) and symmetry with down/up.
     }
 }

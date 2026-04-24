@@ -43,7 +43,7 @@ Mobile works the same way — the canvas scales to fit the viewport and touch is
 undeadinvasion/
 ├── index.html              single entry point with <script type="module">
 ├── src/
-│   ├── main.ts             bootstrap: createjs shim, CSS, Game instance
+│   ├── main.ts             bootstrap: CSS, asset preload, Game instance
 │   ├── responsive.ts       resize handler -> CSS scale custom property
 │   ├── server.ts           Bun.serve dev + preview server
 │   ├── styles/             CSS (and SCSS source) for menu + HUD
@@ -53,14 +53,14 @@ undeadinvasion/
 │   │   ├── Actions.ts      enemy AI state machines (Idle, Approach)
 │   │   ├── Config.ts       difficulty tuning + effect constants
 │   │   ├── Input.ts        keyboard + Pointer Events
-│   │   ├── Sound.ts        AudioManager singleton over createjs.Sound
+│   │   ├── Sound.ts        AudioManager using native Web Audio API
+│   │   ├── assets.ts       PixiJS texture preloader + spritesheet slicing
 │   │   ├── Tools.ts        geometry helpers
 │   │   ├── Position.ts     Position + Rotation value objects
 │   │   ├── Score.ts        end-of-game score animation
 │   │   ├── SpriteSheetData.ts  cached sprite sheets (zombies, player)
 │   │   ├── VanishingEntity.ts  blood / bone fade-out effect
 │   │   ├── state.ts        module-scoped Game singleton
-│   │   ├── createjs-bootstrap.ts   ensures globalThis.createjs is populated
 │   │   ├── entities/       Entity, Player, PowerUp
 │   │   └── weapons/        Weapon factories (13 guns)
 │   ├── types/              type re-exports for consumer aliases
@@ -79,12 +79,12 @@ undeadinvasion/
 
 - **Bun** handles package install, dev server, HMR, bundling, TypeScript execution, and the test runner. No separate Node, npm, Webpack, Vite, Jest, or tsc CLI are required.
 - **TypeScript** in strict mode targeting ES2022, using `moduleResolution: "bundler"`.
-- **[EaselJS](https://createjs.com/easeljs)** (via the `createjs-module` npm aggregate package) for the canvas display tree, sprite sheets, and the `Ticker` game loop.
-- **[SoundJS](https://createjs.com/soundjs)** for audio playback, wrapped in a thin `AudioManager` that registers each file once and plays on demand.
+- **[PixiJS 7](https://pixijs.com)** for the WebGL-backed display tree, sprites, animated sprites, and frame-by-frame ticker.
+- **Web Audio API** (native, no wrapper library) via a small `AudioManager` that decodes each file into an `AudioBuffer` once and plays overlapping `BufferSourceNode`s on demand.
 - **[Knockout 3.5](https://knockoutjs.com)** for menu, HUD, and game-over score bindings.
 - **Pointer Events** for unified mouse / touch / pen input.
 
-The CreateJS-era libraries are unmaintained but stable — gameplay feel is preserved verbatim. `IDEAS.md` tracks their eventual replacement with native Canvas 2D + Web Audio.
+Originally built on CreateJS (EaselJS + SoundJS) in 2013, migrated to PixiJS 7 in 2026 to give the foundation for the feature work on the roadmap (camera / viewport, trails, blur filters, particle systems).
 
 ## Development workflow
 
@@ -121,8 +121,8 @@ Rendering and input code are intentionally not tested — visual regressions are
 See [IDEAS.md](./IDEAS.md) for deferred improvements, including:
 
 - Dropping Knockout in favour of a small hand-rolled reactive binding
-- Migrating rendering off EaselJS to vanilla Canvas 2D or PixiJS
-- Replacing SoundJS with native Web Audio
+- Bullet trails and motion blur (now cheap on PixiJS with filters)
+- Camera / viewport system via `pixi-viewport` for scrollable multi-level maps
 - Wiring up the unused BGM and weapon-specific SFX that ship with the repo
 - CI pipeline, asset optimisation (WebP), service worker for offline play
 - Virtual on-screen joystick and fire button for better mobile ergonomics
@@ -132,7 +132,7 @@ See [IDEAS.md](./IDEAS.md) for deferred improvements, including:
 
 Undead Invasion was written in 2013 as a university project by Wolf Mathes, originally targeting the Kongregate web portal. It was built against the web standards of the time: jQuery 1.8, Knockout 2.3, Sugar.js 1.3, CreateJS from a CDN, manually wired `<script>` tags, no build system.
 
-In 2026 it was modernised in place. The entire source was converted from TypeScript internal modules to ES modules, jQuery and Sugar were removed, Kongregate CDN dependencies dropped, Pointer Events replaced jQuery's mouse handlers, the canvas got responsive scaling, a proper `tsconfig.json` with strict mode was added, all tooling moved to Bun, and a regression test suite was introduced. Gameplay and visuals are unchanged — the mission was to make it runnable again on current browsers both desktop and mobile, not to redesign it.
+In 2026 it was modernised in place. The entire source was converted from TypeScript internal modules to ES modules; jQuery and Sugar were removed; Kongregate CDN dependencies dropped; Pointer Events replaced jQuery's mouse handlers; the canvas got responsive scaling; a proper `tsconfig.json` with strict mode was added; all tooling moved to Bun; and a regression test suite was introduced. The rendering layer then moved from CreateJS/EaselJS to PixiJS 7, and audio moved from SoundJS to native Web Audio. Gameplay and visuals are unchanged — the mission was to make it runnable again on current browsers both desktop and mobile and to set up a foundation for further feature work, not to redesign it.
 
 The full legacy source tree remains accessible via `git log`.
 

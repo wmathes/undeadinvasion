@@ -1,19 +1,24 @@
 /**
- * The main Game class - owns the EaselJS stage, the entity/bullet/effect
- * arrays, input, and the game loop.
+ * The main Game class - owns the PixiJS application, the entity/bullet/
+ * effect arrays, input, and the game loop.
  *
- * Ported from UndeadInvasion.Game in the legacy Scripts/Game.ts. Game
- * logic (spawn schedules, tick order, scoring formulas, difficulty
- * application) is preserved exactly. Delivery layer changes:
+ * Ported from the CreateJS/EaselJS version as Step 1 of the PixiJS
+ * modernisation. Game logic (spawn schedules, tick order, scoring
+ * formulas, difficulty application, collision) is preserved exactly.
+ * Rendering-layer changes:
  *
- *   - jQuery DOM wrappers -> vanilla querySelector / addEventListener
- *   - jQuery mouse events -> Pointer Events (works on touch devices)
- *   - jQuery $.fadeIn()   -> CSS class with a one-shot transitionend
- *   - Global `game` var   -> module-scoped `game` in ./state
+ *   - createjs.Stage  -> PIXI.Application (owns ticker + renderer)
+ *   - createjs.Container -> PIXI.Container
+ *   - createjs.Ticker.addEventListener("tick") -> app.ticker.add(...)
+ *   - event.delta (ms) -> app.ticker.deltaMS
+ *   - stage.update()   -> removed (Pixi renders automatically per frame)
+ *   - container.removeAllChildren() -> container.removeChildren()
  */
 
-import "createjs-module";
+import { Application, Container, TilingSprite } from "pixi.js";
+import { Viewport } from "pixi-viewport";
 import ko from "knockout";
+import { getTexture } from "./assets";
 import { Bullet } from "./Bullet";
 import { Config } from "./Config";
 import type { DifficultyName } from "./Config";
@@ -35,11 +40,27 @@ export class Game {
         return this._current;
     }
 
-    // -------- Canvas --------
-    private _stage!: createjs.Stage;
-    private _groundContainer!: createjs.Container;
-    private _entityContainer!: createjs.Container;
-    private _effectContainer!: createjs.Container;
+    // -------- Pixi application + display tree --------
+    private _app!: Application;
+    private _viewport!: Viewport;
+    private _groundContainer!: Container;
+    private _entityContainer!: Container;
+    private _effectContainer!: Container;
+
+    /** Root container - the Pixi stage itself. */
+    public get Stage(): Container {
+        return this._app.stage;
+    }
+
+    /**
+     * The game world camera. Ground/entity/effect containers all live
+     * under this viewport, and the viewport transform translates world
+     * coordinates to screen coordinates each frame. Exposed for future
+     * consumers that need screen<->world conversion (e.g. mobile UI).
+     */
+    public get Viewport(): Viewport {
+        return this._viewport;
+    }
 
     // -------- Observables (Knockout-bound) --------
     private _score: ko.Observable<number> = ko.observable(0);
@@ -121,26 +142,60 @@ export class Game {
             return;
         }
 
-        // Fixed internal resolution. CSS (#gameDiv in UndeadInvasion.css) owns
-        // the display size and responsively scales via a CSS custom property
-        // driven by src/responsive.ts - we deliberately don't set inline
-        // width/height on the playfield here.
-        canvasElement.width = Config.Game.Width;
-        canvasElement.height = Config.Game.Height;
+        // Pixi application bound to the existing <canvas>. Fixed internal
+        // resolution - CSS in UndeadInvasion.css scales the canvas
+        // responsively via a CSS custom property driven by src/responsive.ts.
+        this._app = new Application({
+            view: canvasElement as HTMLCanvasElement,
+            width: Config.Game.Width,
+            height: Config.Game.Height,
+            backgroundAlpha: 0, // transparent so the CSS background shows through
+            antialias: true,
+            autoDensity: true,
+            resolution: window.devicePixelRatio || 1,
+        });
 
-        // Stage
-        this._stage = new createjs.Stage(canvasElement);
+        // Camera. Viewport is a PIXI.Container subclass that transforms
+        // everything inside it per-frame. World coordinates are preserved
+        // on all entities/bullets/effects; the viewport handles the
+        // translation/scale so that the player-centered region of the
+        // world fills the screen.
+        this._viewport = new Viewport({
+            screenWidth: Config.Game.Width,
+            screenHeight: Config.Game.Height,
+            worldWidth: Config.World.Width,
+            worldHeight: Config.World.Height,
+            events: this._app.renderer.events,
+        });
+        // Don't let the camera scroll past the world edges. underflow:'center'
+        // centers the world when it's smaller than the viewport (e.g. future
+        // tiny levels or very wide monitors).
+        this._viewport.clamp({ direction: "all", underflow: "center" });
+        this._app.stage.addChild(this._viewport);
 
-        // Display-tree layers
-        this._groundContainer = new createjs.Container();
-        this._effectContainer = new createjs.Container();
-        this._entityContainer = new createjs.Container();
-        this._stage.addChild(this._groundContainer, this._entityContainer, this._effectContainer);
+        // Tiled background sprite, full world size. Sits below every
+        // other layer so ground splatters / entities / bullets render on
+        // top of it. Because it lives inside the viewport it scrolls with
+        // the camera, unlike the legacy CSS background that was a fixed
+        // backdrop on the canvas wrapper.
+        const backgroundTexture = getTexture("Images/background.png");
+        const background = new TilingSprite(backgroundTexture, Config.World.Width, Config.World.Height);
+        this._viewport.addChild(background);
 
-        // Ticker
-        createjs.Ticker.addEventListener("tick", (event: Object) => {
-            const delta = (event as { delta: number }).delta;
-            this.tick(delta);
+        // Display-tree layers (ground -> entities -> effects) live inside
+        // the viewport so they move with the camera.
+        this._groundContainer = new Container();
+        this._entityContainer = new Container();
+        this._effectContainer = new Container();
+        this._viewport.addChild(this._groundContainer, this._entityContainer, this._effectContainer);
+
+        // Game loop tick - Pixi ticker delta is in "frames" but .deltaMS
+        // carries the real milliseconds the game logic expects. The
+        // viewport needs its own update call for follow/easing plugins.
+        this._app.ticker.add(() => {
+            const dt = this._app.ticker.deltaMS;
+            this.tick(dt);
+            this._viewport.update(dt);
         });
 
         // Default difficulty so SwitchDifficulty() has something to fall back on
@@ -151,18 +206,33 @@ export class Game {
         ko.cleanNode(body);
         ko.applyBindings(this, body);
 
-        // Pointer events (unified mouse + touch)
+        // Pointer events (unified mouse + touch). We feed two things into
+        // the Input system:
+        //   1. Button-press state (left mouse / touch down) for firing
+        //   2. Cursor position in WORLD coordinates (not screen), so that
+        //      the player's aim calculation compares world-vs-world.
+        // The screen->world conversion uses the viewport's current
+        // transform, so aim stays correct as the camera scrolls.
+        const toWorld = (screenX: number, screenY: number): { x: number; y: number } => {
+            const p = this._viewport.toWorld(screenX, screenY);
+            return { x: p.x, y: p.y };
+        };
         canvasElement.addEventListener("pointerdown", (e) => {
             canvasElement.setPointerCapture(e.pointerId);
+            const w = toWorld(e.offsetX, e.offsetY);
+            this.Input.setCursorWorld(w.x, w.y);
             this.Input.handlePointerDown(e);
         });
         canvasElement.addEventListener("pointerup", (e) => {
+            const w = toWorld(e.offsetX, e.offsetY);
+            this.Input.setCursorWorld(w.x, w.y);
             this.Input.handlePointerUp(e);
         });
         canvasElement.addEventListener("pointermove", (e) => {
+            const w = toWorld(e.offsetX, e.offsetY);
+            this.Input.setCursorWorld(w.x, w.y);
             this.Input.handlePointerMove(e);
         });
-        // Prevent the default touch-action (scroll) on the canvas
         canvasElement.style.touchAction = "none";
 
         // Keyboard
@@ -182,7 +252,7 @@ export class Game {
         // Preload SFX so the first splatter / death sound doesn't race the
         // file load. BGM files exist too (bgm_game.mp3, bgm_menu.mp3) but
         // the original never played them - tracked in IDEAS.md.
-        AudioManager.preloadAll(["bloodsplash", "zombie_die", "weapon_Phaser"]);
+        void AudioManager.preloadAll(["bloodsplash", "zombie_die", "weapon_Phaser"]);
     }
 
     // -------- Public API --------
@@ -210,19 +280,32 @@ export class Game {
             let y = 0;
 
             if (borderSpawn) {
+                // Spawn at the VIEWPORT edges (where the player can almost
+                // see), not the world edges. This keeps combat density
+                // comparable to the pre-camera game regardless of how
+                // large the current level's world gets. Clamp to world
+                // bounds so we never spawn outside walkable area on tiny
+                // maps or near the world corners.
+                const vw = Config.Game.Width;
+                const vh = Config.Game.Height;
+                const cx = this._viewport.center.x;
+                const cy = this._viewport.center.y;
+
                 const r = Math.floor(Math.random() * 4);
                 if (r === 0 || r === 2) {
-                    x = Math.random() * Config.Game.Width;
-                    y = Math.random() * (Config.Game.Height * 0.1);
-                    if (r === 2) y += Config.Game.Height * 0.9;
+                    x = cx - vw / 2 + Math.random() * vw;
+                    y = cy - vh / 2 + Math.random() * (vh * 0.1);
+                    if (r === 2) y += vh * 0.9;
                 } else {
-                    y = Math.random() * Config.Game.Height;
-                    x = Math.random() * (Config.Game.Width * 0.1);
-                    if (r === 1) x += Config.Game.Width * 0.9;
+                    y = cy - vh / 2 + Math.random() * vh;
+                    x = cx - vw / 2 + Math.random() * (vw * 0.1);
+                    if (r === 1) x += vw * 0.9;
                 }
+                x = Math.max(0, Math.min(Config.World.Width, x));
+                y = Math.max(0, Math.min(Config.World.Height, y));
             } else {
-                x = Math.random() * Config.Game.Width;
-                y = Math.random() * Config.Game.Height;
+                x = Math.random() * Config.World.Width;
+                y = Math.random() * Config.World.Height;
             }
 
             const scale = 0.75 + Math.random() * 0.75;
@@ -248,6 +331,22 @@ export class Game {
         const player = new Player(this._entityContainer);
         this._player = player;
         this.Weapon(Weapon.Pistol());
+
+        // Camera tracks the player. `radius` gives rubber-band feel:
+        // the camera only chases once the player steps outside this pixel
+        // radius from the current camera centre, producing a dead-zone
+        // around the player's immediate movement.
+        const playerSprite = player.DisplayObject;
+        if (playerSprite) {
+            this._viewport.follow(playerSprite, {
+                speed: 0, // 0 = snappy; raise (e.g. 8) for more inertia
+                acceleration: null,
+                radius: 80,
+            });
+        } else {
+            // Fallback: jump camera to player position once without follow
+            this._viewport.moveCenter(player.position.x, player.position.y);
+        }
     }
 
     public reset(difficulty?: DifficultyName | string): void {
@@ -265,9 +364,13 @@ export class Game {
 
         this.SwitchDifficulty(difficulty);
 
-        this._effectContainer.removeAllChildren();
-        this._groundContainer.removeAllChildren();
-        this._entityContainer.removeAllChildren();
+        this._effectContainer.removeChildren();
+        this._groundContainer.removeChildren();
+        this._entityContainer.removeChildren();
+
+        // Detach the camera follow so the viewport doesn't chase a freed sprite.
+        this._viewport.plugins.remove("follow");
+        this._viewport.moveCenter(Config.World.Width / 2, Config.World.Height / 2);
     }
 
     public start(difficulty?: DifficultyName | string): void {
@@ -294,10 +397,15 @@ export class Game {
 
         this.splatterBones(this._player.position.x, this._player.position.y);
 
+        // Detach the viewport follow BEFORE the sprite is destroyed; the
+        // follow plugin reads target.position every frame and would crash
+        // on the next tick otherwise.
+        this._viewport.plugins.remove("follow");
+        this._viewport.moveCenter(this._player.position.x, this._player.position.y);
+
         this._player.removeElement();
         this._player = null;
 
-        // Fade in the Game Over overlay, then reset after a beat.
         this.showGameOverOverlay(() => {
             this.GameScore()?.upload();
             setTimeout(() => {
@@ -311,10 +419,6 @@ export class Game {
         });
     }
 
-    /**
-     * Fade the Game Over overlay in over ~2.4s using CSS opacity, then call
-     * the callback. Replaces jQuery's $.fadeIn().
-     */
     private showGameOverOverlay(onDone: () => void): void {
         const el = this._messageGameOver;
         if (!el) {
@@ -324,7 +428,6 @@ export class Game {
         el.style.opacity = "0";
         el.style.display = "";
         el.style.transition = "opacity 2.4s";
-        // Force reflow so the transition picks up the 0 -> 1 change
         void el.offsetWidth;
         el.style.opacity = "1";
         const handler = (): void => {
@@ -332,7 +435,6 @@ export class Game {
             onDone();
         };
         el.addEventListener("transitionend", handler);
-        // Safety fallback if transitionend never fires
         setTimeout(handler, 2500);
     }
 
@@ -368,8 +470,7 @@ export class Game {
         }
 
         this.tickGroundEffects(d);
-
-        this._stage.update();
+        // Pixi's renderer auto-draws each frame - no explicit stage.update()
     }
 
     public tickRespawn(d: number): void {
@@ -420,7 +521,6 @@ export class Game {
 
     public tickBullets(d: number): void {
         this._bullets.forEach((el) => el.update(d));
-        // Drop removed bullets from the list
         this._bullets = this._bullets.filter((b) => !b.isRemoved());
     }
 
@@ -441,9 +541,7 @@ export class Game {
                 // Distinguish Entity (has moveForward) from PowerUp (doesn't)
                 if (typeof ent.moveForward === "function" && ent.options) {
                     this._gameSpawnNext -= 100;
-
                     scoreIncrease += ent.options.pointValue * this.Difficulty.ScoreFactor;
-
                     this.splatterBones(
                         ent.position.x,
                         ent.position.y,
@@ -455,7 +553,6 @@ export class Game {
                     }
                     this._killCount(this._killCount() + 1);
                 } else {
-                    // PowerUp expired (not taken) - partial points
                     const powerUp = entBase as PowerUp;
                     const p = powerUp.options.pointValue * this.Difficulty.ScoreFactor + Math.sqrt(this.Score());
                     scoreIncrease += p;

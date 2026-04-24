@@ -12,12 +12,12 @@
     "typecheck": "bun x tsc --noEmit"
   },
   "dependencies": {
-    "createjs-module": "^0.8.3",
-    "knockout": "^3.5.1"
+    "knockout": "^3.5.1",
+    "pixi-viewport": "^5.0.3",
+    "pixi.js": "^7.4.2"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/createjs": "^0.0.32",
     "@types/knockout": "^3.4.79",
     "sass": "^1.77.0",
     "typescript": "^5.4.0"

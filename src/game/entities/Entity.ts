@@ -1,23 +1,23 @@
 /**
- * Base entity class - shared by zombies, the player, and anything else
- * that owns a sprite on the EaselJS display tree.
+ * Base entity class - zombies, the player, anything with an animated sprite.
  *
- * Ported from Core.Entity in the legacy app.ts. Game behaviour is identical.
+ * Ported to PixiJS v7: createjs.Sprite with a SpriteSheet becomes
+ * PIXI.AnimatedSprite fed by the frame-array helpers in assets.ts.
  */
 
-import "createjs-module";
+import { AnimatedSprite, Container, Texture } from "pixi.js";
 import ko from "knockout";
 import { Config } from "../Config";
 import type { IEnemyOptions, IEntityAction, IEntityBase } from "../interfaces";
 import { Position, Rotation } from "../Position";
-import { SpriteSheets } from "../SpriteSheetData";
+import { getRandomZombieFrames, getSpritesheetFrames, type SpritesheetName } from "../assets";
 import { game } from "../state";
 import { Tools } from "../Tools";
 import { IdleAction } from "../Actions";
 
 export class Entity implements IEntityBase {
-    private _displayElement: createjs.DisplayObject | undefined;
-    public get DisplayObject(): createjs.DisplayObject | undefined {
+    private _displayElement: AnimatedSprite | undefined;
+    public get DisplayObject(): AnimatedSprite | undefined {
         return this._displayElement;
     }
 
@@ -45,31 +45,29 @@ export class Entity implements IEntityBase {
     public isAttacking: boolean = false;
     public lastAttack: number = 0;
 
-    private _container: createjs.Container | undefined;
+    private _container: Container | undefined;
 
-    constructor(container: createjs.Container, entityOptions: IEnemyOptions) {
+    constructor(container: Container, entityOptions: IEnemyOptions) {
         this._container = container;
 
-        // Options
         this.options = entityOptions;
 
         // Random facing
         this.rotation.angle = Math.random() * 360;
 
-        // Positioned via options or random
-        this.position.x = entityOptions.x ?? Math.random() * Config.Game.Width;
-        this.position.y = entityOptions.y ?? Math.random() * Config.Game.Height;
+        // Position (options-provided or random)
+        this.position.x = entityOptions.x ?? Math.random() * Config.World.Width;
+        this.position.y = entityOptions.y ?? Math.random() * Config.World.Height;
 
-        // Sprite
         this.createElement();
         this.updateDisplayElement();
 
-        // Health (scaled by difficulty)
+        // Health scaled by difficulty
         const hp = Math.floor((50 + Math.random() * 100) * game.Difficulty.EnemyHealthFactor);
         this.hp = hp;
         this.hpMax = hp;
 
-        // Default behaviour
+        // Default AI
         this._action = new IdleAction(this);
     }
 
@@ -80,9 +78,7 @@ export class Entity implements IEntityBase {
     public addHealth(amount: number, splatterHealth: boolean = false): void {
         if (amount > 0 && this.hp < this.hpMax) {
             this.hp = amount + this.hp > this.hpMax ? this.hpMax : this.hp + amount;
-
             if (this.HP) this.HP(this.hp);
-
             if (splatterHealth) {
                 // TODO: splatter health effect
             }
@@ -91,20 +87,16 @@ export class Entity implements IEntityBase {
 
     public addDamage(amount: number, _splatterBlood: boolean = true): void {
         if (amount > 0) {
-            // Cap by remaining HP
             amount = amount > this.hp ? this.hp : amount;
-
             if (amount > 0) {
                 this.hp -= amount;
 
-                // Splatter blood in a small random ring
+                // Small blood ring
                 for (let i = 0; i < amount; i += 40) {
                     const randomAngle = Math.random() * (Math.PI * 2);
                     const randomDistance = Math.random() * 0.6 * this.options.size;
-
                     const y = this.position.y + randomDistance * Math.sin(randomAngle);
                     const x = this.position.x + randomDistance * Math.cos(randomAngle);
-
                     game.splatterBlood(x, y);
                 }
 
@@ -119,7 +111,7 @@ export class Entity implements IEntityBase {
 
     public updateDisplayElement(): void {
         if (this._displayElement) {
-            this._displayElement.rotation = this.rotation.angle % 360;
+            this._displayElement.rotation = Tools.DegToRad(this.rotation.angle % 360);
             this._displayElement.x = this.position.x;
             this._displayElement.y = this.position.y;
         }
@@ -128,6 +120,7 @@ export class Entity implements IEntityBase {
     public removeElement(): void {
         if (this._displayElement && this._container) {
             this._container.removeChild(this._displayElement);
+            this._displayElement.destroy();
             this._container = undefined;
             this._displayElement = undefined;
         }
@@ -135,23 +128,18 @@ export class Entity implements IEntityBase {
 
     private createElement(): void {
         if (this._container && !this._displayElement) {
-            // SpriteSheet lookup by name - preserves the legacy dispatch
-            // through UndeadInvasion.Data.SpriteSheets[name]()
             const name = this.options.name ?? "Zombie";
-            const sheetFactory = (SpriteSheets as unknown as Record<string, () => createjs.SpriteSheet>)[name];
-            if (typeof sheetFactory !== "function") {
-                throw new Error(`Unknown sprite sheet: ${name}`);
-            }
-            const sheet = sheetFactory.call(SpriteSheets);
+            const frames: Texture[] = name === "Zombie" ? getRandomZombieFrames() : getSpritesheetFrames(name as SpritesheetName);
 
-            const d = new createjs.Sprite(sheet, "run");
-            d.alpha = 0;
-            d.regX = this.options.regX;
-            d.regY = this.options.regY;
-            d.x = this.position.x;
-            d.y = this.position.y;
-            this._displayElement = d;
-            this._container.addChild(d);
+            const sprite = new AnimatedSprite(frames);
+            sprite.animationSpeed = 4 / 60; // 4 fps @ 60fps target
+            sprite.play();
+            sprite.alpha = 0;
+            sprite.pivot.set(this.options.regX, this.options.regY);
+            sprite.x = this.position.x;
+            sprite.y = this.position.y;
+            this._displayElement = sprite;
+            this._container.addChild(sprite);
         }
     }
 
@@ -179,7 +167,7 @@ export class Entity implements IEntityBase {
     }
 
     public update(delta: number): void {
-        // Spawning fade-in
+        // Spawn fade-in
         if (this._spawning && this._displayElement) {
             this._displayElement.alpha += 0.025;
             if (this._displayElement.alpha >= 1) {
@@ -190,7 +178,7 @@ export class Entity implements IEntityBase {
         if (this.hp > 0) {
             this._action.update(delta);
             this.updateAttack(delta);
-            this.position.overLoop(Config.Game.Width, Config.Game.Height, 40, 40);
+            this.position.overLoop(Config.World.Width, Config.World.Height, 40, 40);
             this.updateDisplayElement();
         } else {
             this._deathTime += delta;

@@ -1,12 +1,12 @@
 /**
  * The player entity.
  *
- * Ported from Core.Player in the legacy app.ts. Movement maths and speed
- * are unchanged; only the global `game` reference moved from window to
- * module scope (../state).
+ * Ported to PixiJS v7. Movement maths unchanged. Super (Entity) now owns
+ * an AnimatedSprite rather than a createjs.Sprite; the spawning fade-in
+ * overrides work identically because both expose `.alpha`.
  */
 
-import "createjs-module";
+import type { Container } from "pixi.js";
 import ko from "knockout";
 import { Config } from "../Config";
 import { game } from "../state";
@@ -14,7 +14,7 @@ import { Tools } from "../Tools";
 import { Entity } from "./Entity";
 
 export class Player extends Entity {
-    constructor(container: createjs.Container) {
+    constructor(container: Container) {
         super(container, {
             size: 36,
             moveSpeed: 90 / 1000,
@@ -23,8 +23,8 @@ export class Player extends Entity {
             regY: 15,
             pointValue: 0,
             scale: 1,
-            x: Config.Game.Width / 2,
-            y: Config.Game.Height / 2,
+            x: Config.World.Width / 2,
+            y: Config.World.Height / 2,
         });
 
         this.hp = 100;
@@ -45,11 +45,9 @@ export class Player extends Entity {
         // Facing cursor
         this.rotation.angle = Tools.GetAngle(this.position, game.Input.CursorPosition);
 
-        // Run distance this frame
         const distance = (this.options.moveSpeed ?? 0) * d;
         const distanceDiagonal = distance * 0.707;
 
-        // Movement-angle penalty for strafing / backpedalling
         const getAngleFactor = (directionAngle: number): number => {
             const angleDistance = Tools.GetAngleOffset(this.rotation.angle, directionAngle, 360);
             return 1 - (Math.abs(angleDistance) / 180) * 0.4;
@@ -58,40 +56,30 @@ export class Player extends Entity {
 
         // UP
         if (game.Input.Up.Clicked && !game.Input.Down.Clicked) {
-            // UP-LEFT
             if (game.Input.Left.Clicked && !game.Input.Right.Clicked) {
                 runspeedFactor = getAngleFactor(45);
                 this.position.y -= runspeedFactor * distanceDiagonal;
                 this.position.x -= runspeedFactor * distanceDiagonal;
-            }
-            // UP-RIGHT
-            else if (!game.Input.Left.Clicked && game.Input.Right.Clicked) {
+            } else if (!game.Input.Left.Clicked && game.Input.Right.Clicked) {
                 runspeedFactor = getAngleFactor(135);
                 this.position.y -= runspeedFactor * distanceDiagonal;
                 this.position.x += runspeedFactor * distanceDiagonal;
-            }
-            // UP
-            else {
+            } else {
                 runspeedFactor = getAngleFactor(90);
                 this.position.y -= runspeedFactor * distance;
             }
         }
         // DOWN
         else if (!game.Input.Up.Clicked && game.Input.Down.Clicked) {
-            // DOWN-LEFT
             if (game.Input.Left.Clicked && !game.Input.Right.Clicked) {
                 runspeedFactor = getAngleFactor(315);
                 this.position.y += runspeedFactor * distanceDiagonal;
                 this.position.x -= runspeedFactor * distanceDiagonal;
-            }
-            // DOWN-RIGHT
-            else if (!game.Input.Left.Clicked && game.Input.Right.Clicked) {
+            } else if (!game.Input.Left.Clicked && game.Input.Right.Clicked) {
                 runspeedFactor = getAngleFactor(-135);
                 this.position.y += runspeedFactor * distanceDiagonal;
                 this.position.x += runspeedFactor * distanceDiagonal;
-            }
-            // DOWN
-            else {
+            } else {
                 runspeedFactor = getAngleFactor(-90);
                 this.position.y += runspeedFactor * distance;
             }
@@ -107,10 +95,7 @@ export class Player extends Entity {
             this.position.x -= runspeedFactor * distance;
         }
 
-        // Keep inside the playfield
-        this.position.crop(Config.Game.Width - 20, Config.Game.Height - 20, 20, 20);
-
-        // Render
+        this.position.crop(Config.World.Width - 20, Config.World.Height - 20, 20, 20);
         this.updateDisplayElement();
     }
 }

@@ -1,26 +1,31 @@
 /**
  * Application entry point.
  *
- * Bootstraps the game once the DOM is ready. Import order matters:
- *   1. createjs-bootstrap - populates globalThis.createjs so every other
- *      module can reference `createjs.Stage`, `createjs.Ticker`, etc.
- *   2. Stylesheet - side-effect import, bundled by Bun.
- *   3. Game - entry class; its constructor wires Knockout, pointer/keyboard
- *      handlers, the EaselJS Ticker, and the module-scoped `game` singleton.
+ * Bootstraps the game once the DOM is ready and assets are loaded.
+ * Order:
+ *   1. Stylesheet - side-effect import, bundled by Bun.
+ *   2. Responsive scaling installer.
+ *   3. preloadAssets() fetches and decodes every PixiJS texture up front,
+ *      so sprites render on the very first frame rather than racing the
+ *      network on first reference.
+ *   4. new Game() wires Pixi, Knockout, pointer/keyboard input, and the
+ *      module-scoped `game` singleton.
  */
 import.meta.hot.accept;
-import "./game/createjs-bootstrap";
+
 import "./styles/UndeadInvasion.css";
+import { preloadAssets } from "./game/assets";
 import { Game } from "./game/Game";
 import { installResponsiveScaling } from "./responsive";
 
-function bootstrap(): void {
+async function bootstrap(): Promise<void> {
     installResponsiveScaling();
+    await preloadAssets();
     new Game("gameDiv");
 }
 
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
+    document.addEventListener("DOMContentLoaded", () => void bootstrap(), { once: true });
 } else {
-    bootstrap();
+    void bootstrap();
 }
