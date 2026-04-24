@@ -7,6 +7,7 @@ yarn-error.log*
 
 # Build output
 dist/
+release-assets/
 *.tsbuildinfo
 
 # Editor / OS
@@ -19,8 +20,3 @@ Thumbs.db
 *.log
 coverage/
 
-# Legacy compiled output (kept for reference during migration, but not tracked going forward)
-# Uncomment these once Phase 2 is finished and the legacy .js files can be removed.
-# app.js
-# Scripts/*.js
-# Scripts/*.js.map

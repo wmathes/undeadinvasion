@@ -6,7 +6,21 @@ Originally shipped against jQuery 1.8, Knockout 2.3, Sugar.js, a Kongregate CDN 
 
 ## Quick start
 
-Requires [Bun](https://bun.sh) 1.1 or newer.
+### Just play it
+
+You need [Node](https://nodejs.org) 18+ or any tool that can run `npx`:
+
+```bash
+npx @tailstorm/undeadinvasion
+```
+
+Starts a local server, opens your default browser, you're playing. Ctrl+C to stop.
+
+Flags: `--port=N` to override the port (default 4173), `--no-open` to skip the browser launch.
+
+### Develop it
+
+Requires [Bun](https://bun.sh) 1.3 or newer.
 
 ```bash
 bun install
@@ -127,6 +141,39 @@ See [IDEAS.md](./IDEAS.md) for deferred improvements, including:
 - CI pipeline, asset optimisation (WebP), service worker for offline play
 - Virtual on-screen joystick and fire button for better mobile ergonomics
 - Accessibility (keyboard-only menu, colour-blind-safe palette, volume sliders)
+
+## Releasing
+
+Releases are automated via [semantic-release](https://semantic-release.gitbook.io/). Pushing to `main` or `next` triggers the `Release` GitHub Actions workflow, which:
+
+1. Typechecks, tests, and builds the production bundle
+2. Packages `dist/` as a zip asset
+3. Runs semantic-release: inspects conventional commits since the last git tag, picks a new version, publishes to npm as `@tailstorm/undeadinvasion`, and creates a GitHub Release with the zip attached
+
+Commit messages drive the version bump:
+
+- `fix:` → patch
+- `feat:` → minor
+- `feat!:` / `BREAKING CHANGE:` → major
+- Anything else (`chore:`, `docs:`, `refactor:`) → no release
+
+The `next` branch produces prereleases (e.g. `2.3.0-next.1`) useful for staging bigger changes before merging to `main`.
+
+### One-time setup (maintainers)
+
+1. Create an npm **Automation** token at <https://www.npmjs.com/settings/~/tokens>. Requires publish access to the `@tailstorm` scope.
+2. Add it as a GitHub Actions secret named `NPM_TOKEN` in repo Settings → Secrets and variables → Actions.
+3. `GITHUB_TOKEN` is provided automatically by Actions, nothing to set up.
+
+With no prior git tags, the first automated release defaults to `1.0.0`.
+
+### Local dry run
+
+```bash
+bun run release:dry
+```
+
+Walks the commit log and prints what would happen without actually publishing.
 
 ## History
 
