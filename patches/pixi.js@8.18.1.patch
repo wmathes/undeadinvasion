@@ -1,0 +1,241 @@
+diff --git a/node_modules/pixi.js/lib/filters.d.ts b/lib/filters.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae467d7618549ecbb108611a67ca9cd00fca0ff3
+--- /dev/null
++++ b/lib/filters.d.ts
+@@ -0,0 +1,63 @@
++import { AlphaFilter } from '@pixi/filter-alpha';
++import { BlurFilter, BlurFilterPass } from '@pixi/filter-blur';
++import { ColorMatrixFilter } from '@pixi/filter-color-matrix';
++import { DisplacementFilter } from '@pixi/filter-displacement';
++import { FXAAFilter } from '@pixi/filter-fxaa';
++import { NoiseFilter } from '@pixi/filter-noise';
++/**
++ * Filters namespace has been removed. All filters are now available directly from the root of the package.
++ * @namespace PIXI.filters
++ * @deprecated
++ */
++declare const filters: {
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.AlphaFilter
++     */
++    AlphaFilter: typeof AlphaFilter;
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.BlurFilter
++     */
++    BlurFilter: typeof BlurFilter;
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.BlurFilterPass
++     */
++    BlurFilterPass: typeof BlurFilterPass;
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.ColorMatrixFilter
++     */
++    ColorMatrixFilter: typeof ColorMatrixFilter;
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.DisplacementFilter
++     */
++    DisplacementFilter: typeof DisplacementFilter;
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.FXAAFilter
++     */
++    FXAAFilter: typeof FXAAFilter;
++    /**
++     * @class
++     * @memberof PIXI.filters
++     * @deprecated since 7.1.0
++     * @see PIXI.NoiseFilter
++     */
++    NoiseFilter: typeof NoiseFilter;
++};
++export { filters };
+diff --git a/node_modules/pixi.js/lib/filters.js b/lib/filters.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0481d396da60b8e66c59db10eeeb9d2eabad7c4
+--- /dev/null
++++ b/lib/filters.js
+@@ -0,0 +1,62 @@
++"use strict";
++var core = require("@pixi/core"), filterAlpha = require("@pixi/filter-alpha"), filterBlur = require("@pixi/filter-blur"), filterColorMatrix = require("@pixi/filter-color-matrix"), filterDisplacement = require("@pixi/filter-displacement"), filterFxaa = require("@pixi/filter-fxaa"), filterNoise = require("@pixi/filter-noise");
++const filters = {
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.AlphaFilter
++   */
++  AlphaFilter: filterAlpha.AlphaFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.BlurFilter
++   */
++  BlurFilter: filterBlur.BlurFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.BlurFilterPass
++   */
++  BlurFilterPass: filterBlur.BlurFilterPass,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.ColorMatrixFilter
++   */
++  ColorMatrixFilter: filterColorMatrix.ColorMatrixFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.DisplacementFilter
++   */
++  DisplacementFilter: filterDisplacement.DisplacementFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.FXAAFilter
++   */
++  FXAAFilter: filterFxaa.FXAAFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.NoiseFilter
++   */
++  NoiseFilter: filterNoise.NoiseFilter
++};
++Object.entries(filters).forEach(([key, FilterClass]) => {
++  Object.defineProperty(filters, key, {
++    get() {
++      return core.utils.deprecation("7.1.0", `filters.${key} has moved to ${key}`), FilterClass;
++    }
++  });
++});
++exports.filters = filters;
++//# sourceMappingURL=filters.js.map
+diff --git a/node_modules/pixi.js/lib/filters.js.map b/lib/filters.js.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..661a89c109b11e527964d16373c3e3fe18a1ac48
+--- /dev/null
++++ b/lib/filters.js.map
+@@ -0,0 +1 @@
++{"version":3,"file":"filters.js","sources":["../src/filters.ts"],"sourcesContent":["import { utils } from '@pixi/core';\nimport { AlphaFilter } from '@pixi/filter-alpha';\nimport { BlurFilter, BlurFilterPass } from '@pixi/filter-blur';\nimport { ColorMatrixFilter } from '@pixi/filter-color-matrix';\nimport { DisplacementFilter } from '@pixi/filter-displacement';\nimport { FXAAFilter } from '@pixi/filter-fxaa';\nimport { NoiseFilter } from '@pixi/filter-noise';\n\n/**\n * Filters namespace has been removed. All filters are now available directly from the root of the package.\n * @namespace PIXI.filters\n * @deprecated\n */\nconst filters = {\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.AlphaFilter\n     */\n    AlphaFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.BlurFilter\n     */\n    BlurFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.BlurFilterPass\n     */\n    BlurFilterPass,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.ColorMatrixFilter\n     */\n    ColorMatrixFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.DisplacementFilter\n     */\n    DisplacementFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.FXAAFilter\n     */\n    FXAAFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.NoiseFilter\n     */\n    NoiseFilter,\n};\n\nObject.entries(filters).forEach(([key, FilterClass]) =>\n{\n    Object.defineProperty(filters, key, {\n        get()\n        {\n            // #if _DEBUG\n            utils.deprecation('7.1.0', `filters.${key} has moved to ${key}`);\n            // #endif\n\n            return FilterClass;\n        },\n    });\n});\n\nexport { filters };\n"],"names":["AlphaFilter","BlurFilter","BlurFilterPass","ColorMatrixFilter","DisplacementFilter","FXAAFilter","NoiseFilter","utils"],"mappings":";;AAaA,MAAM,UAAU;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,aAOZA,YAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,YAOAC,WAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,gBAOAC,WAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,mBAOAC,kBAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,oBAOAC,mBAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,YAOAC,WAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAAA,aAOAC,YAAA;AACJ;AAEA,OAAO,QAAQ,OAAO,EAAE,QAAQ,CAAC,CAAC,KAAK,WAAW,MAClD;AACW,SAAA,eAAe,SAAS,KAAK;AAAA,IAChC,MACA;AAEI,aAAAC,WAAM,YAAY,SAAS,WAAW,GAAG,iBAAiB,GAAG,EAAE,GAGxD;AAAA,IACX;AAAA,EAAA,CACH;AACL,CAAC;;"}
+\ No newline at end of file
+diff --git a/node_modules/pixi.js/lib/filters.mjs b/lib/filters.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..6d9c5b23577f7194b32920e4f5a66db91580ede4
+--- /dev/null
++++ b/lib/filters.mjs
+@@ -0,0 +1,69 @@
++import { utils } from "@pixi/core";
++import { AlphaFilter } from "@pixi/filter-alpha";
++import { BlurFilter, BlurFilterPass } from "@pixi/filter-blur";
++import { ColorMatrixFilter } from "@pixi/filter-color-matrix";
++import { DisplacementFilter } from "@pixi/filter-displacement";
++import { FXAAFilter } from "@pixi/filter-fxaa";
++import { NoiseFilter } from "@pixi/filter-noise";
++const filters = {
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.AlphaFilter
++   */
++  AlphaFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.BlurFilter
++   */
++  BlurFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.BlurFilterPass
++   */
++  BlurFilterPass,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.ColorMatrixFilter
++   */
++  ColorMatrixFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.DisplacementFilter
++   */
++  DisplacementFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.FXAAFilter
++   */
++  FXAAFilter,
++  /**
++   * @class
++   * @memberof PIXI.filters
++   * @deprecated since 7.1.0
++   * @see PIXI.NoiseFilter
++   */
++  NoiseFilter
++};
++Object.entries(filters).forEach(([key, FilterClass]) => {
++  Object.defineProperty(filters, key, {
++    get() {
++      return utils.deprecation("7.1.0", `filters.${key} has moved to ${key}`), FilterClass;
++    }
++  });
++});
++export {
++  filters
++};
++//# sourceMappingURL=filters.mjs.map
+diff --git a/node_modules/pixi.js/lib/filters.mjs.map b/lib/filters.mjs.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9728dc2c3e5b02a035ae3abee0eba1156ace8c9
+--- /dev/null
++++ b/lib/filters.mjs.map
+@@ -0,0 +1 @@
++{"version":3,"file":"filters.mjs","sources":["../src/filters.ts"],"sourcesContent":["import { utils } from '@pixi/core';\nimport { AlphaFilter } from '@pixi/filter-alpha';\nimport { BlurFilter, BlurFilterPass } from '@pixi/filter-blur';\nimport { ColorMatrixFilter } from '@pixi/filter-color-matrix';\nimport { DisplacementFilter } from '@pixi/filter-displacement';\nimport { FXAAFilter } from '@pixi/filter-fxaa';\nimport { NoiseFilter } from '@pixi/filter-noise';\n\n/**\n * Filters namespace has been removed. All filters are now available directly from the root of the package.\n * @namespace PIXI.filters\n * @deprecated\n */\nconst filters = {\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.AlphaFilter\n     */\n    AlphaFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.BlurFilter\n     */\n    BlurFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.BlurFilterPass\n     */\n    BlurFilterPass,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.ColorMatrixFilter\n     */\n    ColorMatrixFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.DisplacementFilter\n     */\n    DisplacementFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.FXAAFilter\n     */\n    FXAAFilter,\n    /**\n     * @class\n     * @memberof PIXI.filters\n     * @deprecated since 7.1.0\n     * @see PIXI.NoiseFilter\n     */\n    NoiseFilter,\n};\n\nObject.entries(filters).forEach(([key, FilterClass]) =>\n{\n    Object.defineProperty(filters, key, {\n        get()\n        {\n            // #if _DEBUG\n            utils.deprecation('7.1.0', `filters.${key} has moved to ${key}`);\n            // #endif\n\n            return FilterClass;\n        },\n    });\n});\n\nexport { filters };\n"],"names":[],"mappings":";;;;;;;AAaA,MAAM,UAAU;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOZ;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,EAOA;AACJ;AAEA,OAAO,QAAQ,OAAO,EAAE,QAAQ,CAAC,CAAC,KAAK,WAAW,MAClD;AACW,SAAA,eAAe,SAAS,KAAK;AAAA,IAChC,MACA;AAEI,aAAA,MAAM,YAAY,SAAS,WAAW,GAAG,iBAAiB,GAAG,EAAE,GAGxD;AAAA,IACX;AAAA,EAAA,CACH;AACL,CAAC;"}
+\ No newline at end of file
+diff --git a/package.json b/package.json
+index d0d87eeffa464de6530a1454466c4a3d5d2fa814..3fa4de220cf4eb19a279c9740bc22e8bf57d087c 100644
+--- a/package.json
++++ b/package.json
+@@ -206,7 +206,7 @@
+     ".": {
+       "import": {
+         "types": "./lib/index.d.ts",
+-        "default": "./lib/index.mjs"
++        "default": "./dist/pixi.mjs"
+       },
+       "require": {
+         "types": "./lib/index.d.ts",

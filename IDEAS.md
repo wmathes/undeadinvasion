@@ -28,6 +28,7 @@ Deferred ideas from the modernization effort. None of these block playability on
 - **Asset pipeline.** Sprite sheets are already pre-packed, but `menu_logo.png` is 309 KB — could be ~40 KB as WebP. Add a build step that converts PNG → WebP with PNG fallback.
 - **Service Worker for offline play.** Game assets total ~5 MB; easily cacheable for offline-first PWA experience.
 - **Bundle splitting.** Current plan produces a single JS bundle. Splitting menu vs. gameplay would let the menu interactive paint earlier.
+- **Drop the pixi.js package.json patch.** We patch pixi.js's `exports["."]["import"]["default"]` from `./lib/index.mjs` to `./dist/pixi.mjs` because Bun 1.3.13 mis-resolves the circular imports in `lib/index.mjs`, crashing at `extensions.add(browserExt, webworkerExt)` during module init. The pre-bundled `dist/pixi.mjs` has the cycle already flattened and works fine. Patch lives under `patches/` (managed by `bun patch`). Revert to the upstream default once Bun's bundler handles the cycle correctly — tracked at https://github.com/oven-sh/bun/issues search "pixi.js v8".
 
 ## Code Quality
 

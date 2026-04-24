@@ -16,7 +16,7 @@
  * Call `preloadAssets()` once from main.ts before constructing Game.
  */
 
-import { Assets, BaseTexture, Rectangle, Texture } from "pixi.js";
+import { Assets, Rectangle, Texture } from "pixi.js";
 
 // -------- Asset manifest --------
 
@@ -75,12 +75,15 @@ export async function preloadAssets(): Promise<void> {
     // of 35x30 frames, zombie_*.png is 385x87 = 11 cols x 3 rows of
     // 35x29 frames) - CreateJS's SpriteSheet auto-figured this out at
     // load time; we replicate that here.
+    //
+    // PixiJS v8 note: Texture.baseTexture was removed; new sliced textures
+    // share the parent's underlying TextureSource via `{ source, frame }`.
     const sheetEntries = Object.entries(SPRITESHEETS) as [SpritesheetName, (typeof SPRITESHEETS)[SpritesheetName]][];
     const sheetPromises = sheetEntries.map(async ([name, meta]) => {
         const texture = await Assets.load<Texture>(meta.path);
         _textures.set(meta.path, texture);
 
-        const sheetWidth = texture.baseTexture.width;
+        const sheetWidth = texture.source.width;
         const framesPerRow = Math.floor(sheetWidth / meta.frameWidth);
         if (framesPerRow <= 0) {
             throw new Error(
@@ -93,10 +96,15 @@ export async function preloadAssets(): Promise<void> {
             const col = i % framesPerRow;
             const row = Math.floor(i / framesPerRow);
             frames.push(
-                new Texture(
-                    texture.baseTexture,
-                    new Rectangle(col * meta.frameWidth, row * meta.frameHeight, meta.frameWidth, meta.frameHeight),
-                ),
+                new Texture({
+                    source: texture.source,
+                    frame: new Rectangle(
+                        col * meta.frameWidth,
+                        row * meta.frameHeight,
+                        meta.frameWidth,
+                        meta.frameHeight,
+                    ),
+                }),
             );
         }
         _spritesheetFrames.set(name, frames);
@@ -128,13 +136,9 @@ export function getRandomZombieFrames(): Texture[] {
     return getSpritesheetFrames("ZombieYellow");
 }
 
-/**
- * Suppress the "BaseTexture already destroyed" warnings Pixi emits if we
- * ever re-init (e.g. during HMR). Dev-only niceness.
- */
+/** Dev-only reset for HMR. PixiJS v8 handles source cleanup via texture.destroy(). */
 export function resetAssetsForHMR(): void {
     _textures.clear();
     _spritesheetFrames.clear();
     _loaded = false;
-    BaseTexture.removeAllListeners();
 }

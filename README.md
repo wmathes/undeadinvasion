@@ -79,12 +79,12 @@ undeadinvasion/
 
 - **Bun** handles package install, dev server, HMR, bundling, TypeScript execution, and the test runner. No separate Node, npm, Webpack, Vite, Jest, or tsc CLI are required.
 - **TypeScript** in strict mode targeting ES2022, using `moduleResolution: "bundler"`.
-- **[PixiJS 7](https://pixijs.com)** for the WebGL-backed display tree, sprites, animated sprites, and frame-by-frame ticker.
+- **[PixiJS 8](https://pixijs.com)** for the WebGL-backed display tree, sprites, animated sprites, and frame-by-frame ticker.
 - **Web Audio API** (native, no wrapper library) via a small `AudioManager` that decodes each file into an `AudioBuffer` once and plays overlapping `BufferSourceNode`s on demand.
 - **[Knockout 3.5](https://knockoutjs.com)** for menu, HUD, and game-over score bindings.
 - **Pointer Events** for unified mouse / touch / pen input.
 
-Originally built on CreateJS (EaselJS + SoundJS) in 2013, migrated to PixiJS 7 in 2026 to give the foundation for the feature work on the roadmap (camera / viewport, trails, blur filters, particle systems).
+Originally built on CreateJS (EaselJS + SoundJS) in 2013, migrated to PixiJS 8 in 2026 to give the foundation for the feature work on the roadmap (camera / viewport, trails, blur filters, particle systems).
 
 ## Development workflow
 
@@ -132,7 +132,7 @@ See [IDEAS.md](./IDEAS.md) for deferred improvements, including:
 
 Undead Invasion was written in 2013 as a university project by Wolf Mathes, originally targeting the Kongregate web portal. It was built against the web standards of the time: jQuery 1.8, Knockout 2.3, Sugar.js 1.3, CreateJS from a CDN, manually wired `<script>` tags, no build system.
 
-In 2026 it was modernised in place. The entire source was converted from TypeScript internal modules to ES modules; jQuery and Sugar were removed; Kongregate CDN dependencies dropped; Pointer Events replaced jQuery's mouse handlers; the canvas got responsive scaling; a proper `tsconfig.json` with strict mode was added; all tooling moved to Bun; and a regression test suite was introduced. The rendering layer then moved from CreateJS/EaselJS to PixiJS 7, and audio moved from SoundJS to native Web Audio. Gameplay and visuals are unchanged — the mission was to make it runnable again on current browsers both desktop and mobile and to set up a foundation for further feature work, not to redesign it.
+In 2026 it was modernised in place. The entire source was converted from TypeScript internal modules to ES modules; jQuery and Sugar were removed; Kongregate CDN dependencies dropped; Pointer Events replaced jQuery's mouse handlers; the canvas got responsive scaling; a proper `tsconfig.json` with strict mode was added; all tooling moved to Bun; and a regression test suite was introduced. The rendering layer then moved from CreateJS/EaselJS to PixiJS 8, and audio moved from SoundJS to native Web Audio. Gameplay and visuals are unchanged — the mission was to make it runnable again on current browsers both desktop and mobile and to set up a foundation for further feature work, not to redesign it.
 
 The full legacy source tree remains accessible via `git log`.
 

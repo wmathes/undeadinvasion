@@ -129,7 +129,16 @@ export class Game {
      */
     private _cameraTarget: { x: number; y: number } | null = null;
 
+    /** Stashed so init() can find the DOM playfield after construction. */
+    private readonly _playfieldName: string;
+
     // -------- Construction --------
+
+    /**
+     * Use `Game.create()` rather than `new Game()` directly - the factory
+     * awaits the async PixiJS Application init before returning. Calling
+     * the constructor alone leaves Pixi/Viewport/containers uninitialised.
+     */
     constructor(playfieldName: string) {
         // Register as current + expose through ./state before any sub-
         // component that reads `game` (Input's key callback, Entity's
@@ -137,10 +146,31 @@ export class Game {
         Game._current = this;
         setGame(this);
 
-        const playfield = document.getElementById(playfieldName);
+        this._playfieldName = playfieldName;
+        this._difficulty = Config.Difficulties.Normal;
+    }
+
+    /**
+     * Create and fully initialise a Game in one step. Returns only once
+     * PixiJS is ready and the ticker is running.
+     */
+    public static async create(playfieldName: string): Promise<Game> {
+        const g = new Game(playfieldName);
+        await g.init();
+        return g;
+    }
+
+    /**
+     * Async half of construction: boot PixiJS (v8 Application.init is
+     * async), wire the camera viewport, containers, ticker, Knockout
+     * bindings, pointer + keyboard listeners, and kick off SFX preload.
+     *
+     * Expects the DOM to be ready and preloadAssets() to have completed.
+     */
+    public async init(): Promise<void> {
+        const playfield = document.getElementById(this._playfieldName);
         if (!playfield) {
-            console.error(`No playfield "${playfieldName}" found in DOM`);
-            return;
+            throw new Error(`Game.init: no playfield "${this._playfieldName}" in DOM`);
         }
 
         playfield.classList.add("playfield");
@@ -148,15 +178,16 @@ export class Game {
 
         const canvasElement = playfield.querySelector("canvas");
         if (!canvasElement) {
-            console.error("No <canvas> inside playfield");
-            return;
+            throw new Error("Game.init: no <canvas> inside playfield");
         }
 
-        // Pixi application bound to the existing <canvas>. Fixed internal
-        // resolution - CSS in UndeadInvasion.css scales the canvas
+        // PixiJS v8: Application.init() is async and 'canvas' replaces
+        // v7's 'view'. CSS in UndeadInvasion.css scales the canvas
         // responsively via a CSS custom property driven by src/responsive.ts.
-        this._app = new Application({
-            view: canvasElement as HTMLCanvasElement,
+        this._app = new Application();
+        await this._app.init({
+            preference: 'webgl',
+            canvas: canvasElement as HTMLCanvasElement,
             width: Config.Game.Width,
             height: Config.Game.Height,
             backgroundAlpha: 0, // transparent so the CSS background shows through
@@ -168,8 +199,8 @@ export class Game {
         // Camera. Viewport is a PIXI.Container subclass that transforms
         // everything inside it per-frame. World coordinates are preserved
         // on all entities/bullets/effects; the viewport handles the
-        // translation/scale so that the player-centered region of the
-        // world fills the screen.
+        // translation/scale so the player-centered world region fills the
+        // screen.
         this._viewport = new Viewport({
             screenWidth: Config.Game.Width,
             screenHeight: Config.Game.Height,
@@ -177,7 +208,7 @@ export class Game {
             worldHeight: Config.World.Height,
             events: this._app.renderer.events,
         });
-        // Don't let the camera scroll past the world edges. underflow:'center'
+        // Don't let the camera scroll past world edges. underflow:'center'
         // centers the world when it's smaller than the viewport (e.g. future
         // tiny levels or very wide monitors).
         this._viewport.clamp({ direction: "all", underflow: "center" });
@@ -189,7 +220,11 @@ export class Game {
         // the camera, unlike the legacy CSS background that was a fixed
         // backdrop on the canvas wrapper.
         const backgroundTexture = getTexture("Images/background.png");
-        const background = new TilingSprite(backgroundTexture, Config.World.Width, Config.World.Height);
+        const background = new TilingSprite({
+            texture: backgroundTexture,
+            width: Config.World.Width,
+            height: Config.World.Height,
+        });
         this._viewport.addChild(background);
 
         // Display-tree layers (ground -> entities -> effects) live inside
@@ -206,9 +241,6 @@ export class Game {
             this.tick(dt);
             this.tickCamera(dt);
         });
-
-        // Default difficulty so SwitchDifficulty() has something to fall back on
-        this._difficulty = Config.Difficulties.Normal;
 
         // Knockout bindings on <body>
         const body = document.body;
@@ -245,12 +277,8 @@ export class Game {
         canvasElement.style.touchAction = "none";
 
         // Keyboard
-        document.addEventListener("keydown", (e) => {
-            this.Input.handleKeyDown(e);
-        });
-        document.addEventListener("keyup", (e) => {
-            this.Input.handleKeyUp(e);
-        });
+        document.addEventListener("keydown", (e) => this.Input.handleKeyDown(e));
+        document.addEventListener("keyup", (e) => this.Input.handleKeyUp(e));
 
         // Cache the game-over overlay element
         this._messageGameOver = document.getElementById("messageGameOver");

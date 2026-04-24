@@ -8,8 +8,9 @@
  *   3. preloadAssets() fetches and decodes every PixiJS texture up front,
  *      so sprites render on the very first frame rather than racing the
  *      network on first reference.
- *   4. new Game() wires Pixi, Knockout, pointer/keyboard input, and the
- *      module-scoped `game` singleton.
+ *   4. Game.create() runs PixiJS v8's async Application.init(), wires
+ *      Knockout, pointer/keyboard input, the camera, and the module-
+ *      scoped `game` singleton.
  */
 import.meta.hot.accept;
 
@@ -21,7 +22,7 @@ import { installResponsiveScaling } from "./responsive";
 async function bootstrap(): Promise<void> {
     installResponsiveScaling();
     await preloadAssets();
-    new Game("gameDiv");
+    await Game.create("gameDiv");
 }
 
 if (document.readyState === "loading") {
