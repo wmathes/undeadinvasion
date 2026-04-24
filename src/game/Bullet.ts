@@ -59,7 +59,7 @@ export class Bullet {
         this._origin = new Position(this._position.x, this._position.y);
 
         // Bullet sprite
-        const texture = getTexture(`Images/bullet_${this._settings.Type}.png`);
+        const texture = getTexture(`images/bullet_${this._settings.Type}.png`);
         const sprite = new Sprite(texture);
         sprite.pivot.set(Config.Bullet.PivotX, Config.Bullet.PivotY);
         sprite.x = this._origin.x;

@@ -2,7 +2,7 @@
  * Copies static assets into the build output directory.
  *
  * The JS code references assets via runtime-constructed URLs like
- *   createjs.Bitmap("Images/bullet_" + type + ".png")
+ *   createjs.Bitmap("images/bullet_" + type + ".png")
  *   createjs.Sound.registerSound("Sounds/" + name + ".mp3", ...)
  * so these folders need to exist at the same paths inside dist/ after a
  * production build.
@@ -18,7 +18,7 @@ import { join } from "node:path";
 const PROJECT_ROOT = process.cwd();
 const DIST = join(PROJECT_ROOT, "dist");
 
-const ASSET_FOLDERS = ["Images", "Sounds"] as const;
+const ASSET_FOLDERS = ["images", "Sounds"] as const;
 
 async function copyAssetFolder(name: string): Promise<void> {
     const src = join(PROJECT_ROOT, name);

@@ -353,7 +353,7 @@ export class Weapon {
         this._settings.BulletWidth ??= "3px";
         this._settings.BulletHeight ??= "10px";
 
-        this.ImageName = "Images/Weapon_" + this._settings.Name + ".png";
+        this.ImageName = "images/Weapon_" + this._settings.Name + ".png";
 
         this.AmmoRemaining.value = this._settings.AmmoMax;
         this.AmmoMax.value = this._settings.AmmoMax;

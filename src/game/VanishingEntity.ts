@@ -25,7 +25,7 @@ export class VanishingEntity {
 
         // Pick a random variation image
         const variation = Math.floor(this._settings.Variations * Math.random());
-        const path = `Images/${this._settings.Image}_${variation}.png`;
+        const path = `images/${this._settings.Image}_${variation}.png`;
         const texture = getTexture(path);
 
         const sprite = new Sprite(texture);

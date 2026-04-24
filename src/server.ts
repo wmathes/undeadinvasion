@@ -6,8 +6,8 @@
  *
  * Bun's built-in bundler handles TypeScript, CSS, and asset URL rewriting
  * automatically when we hand index.html to `routes`. Legacy asset folders
- * (Images/, Sounds/) are served pass-through from the project root so the
- * dynamic `"Images/bullet_" + type + ".png"` references in game code keep
+ * (images/, Sounds/) are served pass-through from the project root so the
+ * dynamic `"images/bullet_" + type + ".png"` references in game code keep
  * working without an intermediate copy step.
  */
 
@@ -24,7 +24,7 @@ const PREVIEW = process.argv.includes("--dist");
 const PORT = Number(process.env.PORT ?? 3000);
 
 /** Static asset folders served directly from the project root during dev. */
-const PASS_THROUGH_PREFIXES = ["/Images/", "/Sounds/", "/Styles/"];
+const PASS_THROUGH_PREFIXES = ["/images/", "/sounds/", "/styles/"];
 
 async function servePassThroughAsset(pathname: string, root: string): Promise<Response | null> {
     for (const prefix of PASS_THROUGH_PREFIXES) {

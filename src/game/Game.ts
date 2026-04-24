@@ -223,7 +223,7 @@ export class Game {
         // top of it. Because it lives inside the viewport it scrolls with
         // the camera, unlike the legacy CSS background that was a fixed
         // backdrop on the canvas wrapper.
-        const backgroundTexture = getTexture("Images/background.png");
+        const backgroundTexture = getTexture("images/background.png");
         const background = new TilingSprite({
             texture: backgroundTexture,
             width: Config.World.Width,

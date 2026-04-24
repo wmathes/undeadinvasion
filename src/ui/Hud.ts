@@ -142,7 +142,7 @@ export class Hud {
 
         // 2. Weapon icon - uses the asset name embedded in the settings
         const imageName = weapon._settings.Image ?? weapon._settings.Name;
-        iconEl.style.backgroundImage = `url(Images/weapon_${imageName}.png)`;
+        iconEl.style.backgroundImage = `url(images/weapon_${imageName}.png)`;
 
         // 3. Rebuild the magazine's ammo dots to match AmmoMax
         magazineEl.innerHTML = "";

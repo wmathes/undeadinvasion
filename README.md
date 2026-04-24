@@ -80,8 +80,8 @@ undeadinvasion/
 │   ├── types/              type re-exports for consumer aliases
 │   └── ui/                 reserved for future viewmodel extraction
 ├── tests/                  bun:test regression suites (Tools, Config, Position, Weapon)
-├── scripts/copy-assets.ts  post-build step copying Images/ + Sounds/ to dist/
-├── Images/                 sprite sheets, bullets, weapon icons, backgrounds
+├── scripts/copy-assets.ts  post-build step copying images/ + Sounds/ to dist/
+├── images/                 sprite sheets, bullets, weapon icons, backgrounds
 ├── Sounds/                 SFX and BGM (MP3)
 ├── IDEAS.md                deferred improvements for future passes
 ├── bunfig.toml             Bun configuration

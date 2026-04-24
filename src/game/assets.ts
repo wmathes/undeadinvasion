@@ -10,7 +10,7 @@
  * PixiJS's `Assets` API lets us batch-preload all known textures up front
  * and hand them out synchronously via `getTexture(name)` for the rest of
  * the app. Asset paths that are built dynamically at runtime (e.g.
- * `"Images/bullet_" + type + ".png"`) still resolve synchronously because
+ * `"images/bullet_" + type + ".png"`) still resolve synchronously because
  * we preload every possible value.
  *
  * Call `preloadAssets()` once from main.ts before constructing Game.
@@ -22,21 +22,21 @@ import { Assets, Rectangle, Texture } from "pixi.js";
 
 /** Non-spritesheet images, loaded as plain textures. */
 const FLAT_IMAGES: readonly string[] = [
-    "Images/background.png",
-    "Images/bloodSplatter_0.png",
-    "Images/bones_0.png",
-    "Images/health.png",
-    "Images/Microchip.png",
+    "images/background.png",
+    "images/bloodSplatter_0.png",
+    "images/bones_0.png",
+    "images/health.png",
+    "images/Microchip.png",
     // Bullet types - one per weapon BulletType value plus the "default".
-    "Images/bullet_default.png",
-    "Images/bullet_small.png",
-    "Images/bullet_cannonball.png",
-    "Images/bullet_flame.png",
-    "Images/bullet_ion.png",
-    "Images/bullet_phaser.png",
-    "Images/bullet_ray.png",
-    "Images/bullet_shrapnel.png",
-    "Images/bullet_shrapnel_slim.png",
+    "images/bullet_default.png",
+    "images/bullet_small.png",
+    "images/bullet_cannonball.png",
+    "images/bullet_flame.png",
+    "images/bullet_ion.png",
+    "images/bullet_phaser.png",
+    "images/bullet_ray.png",
+    "images/bullet_shrapnel.png",
+    "images/bullet_shrapnel_slim.png",
 ];
 
 /**
@@ -44,10 +44,10 @@ const FLAT_IMAGES: readonly string[] = [
  * frames. Keyed by a short logical name used at runtime.
  */
 const SPRITESHEETS = {
-    Player: { path: "Images/player_run.png", frameWidth: 35, frameHeight: 30, frameCount: 13 },
-    ZombieBlue: { path: "Images/zombie_blue.png", frameWidth: 35, frameHeight: 29, frameCount: 16 },
-    ZombieRed: { path: "Images/zombie_red.png", frameWidth: 35, frameHeight: 29, frameCount: 16 },
-    ZombieYellow: { path: "Images/zombie_yellow.png", frameWidth: 35, frameHeight: 29, frameCount: 16 },
+    Player: { path: "images/player_run.png", frameWidth: 35, frameHeight: 30, frameCount: 13 },
+    ZombieBlue: { path: "images/zombie_blue.png", frameWidth: 35, frameHeight: 29, frameCount: 16 },
+    ZombieRed: { path: "images/zombie_red.png", frameWidth: 35, frameHeight: 29, frameCount: 16 },
+    ZombieYellow: { path: "images/zombie_yellow.png", frameWidth: 35, frameHeight: 29, frameCount: 16 },
 } as const satisfies Record<string, { path: string; frameWidth: number; frameHeight: number; frameCount: number }>;
 
 export type SpritesheetName = keyof typeof SPRITESHEETS;

@@ -31,7 +31,7 @@ body {
   left: 0;
   width: 920px;
   height: 700px;
-  background-image: url("../../Images/menu_logo.png"); }
+  background-image: url("../../images/menu_logo.png"); }
 
 .gamescore {
   position: absolute;
@@ -118,7 +118,7 @@ button {
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center left;
-    background-image: url("../../Images/health.png");
+    background-image: url("../../images/health.png");
     height: 36px;
     width: 110px;
     display: inline-block; }
@@ -262,7 +262,7 @@ button {
 	@include entityVisuals;
 	animation: picturefour 600ms;
 	-webkit-animation: picturefour 600ms;
-	background-image: url('../../Images/zombie_24_4.png');
+	background-image: url('../../images/zombie_24_4.png');
 }
 
 .player {

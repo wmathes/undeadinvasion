@@ -72,7 +72,7 @@ export class PowerUp implements IEntityBase {
 
     private createElement(imagePath: string): void {
         if (this._container && !this._sprite) {
-            const texture = getTexture(`Images/${imagePath}`);
+            const texture = getTexture(`images/${imagePath}`);
             const sprite = new Sprite(texture);
             sprite.alpha = 0;
             sprite.pivot.set(Config.PowerUp.RegX, Config.PowerUp.RegY);
