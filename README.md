@@ -185,7 +185,7 @@ The full legacy source tree remains accessible via `git log`.
 
 ## Author
 
-Wolf Mathes — <hello@wolfmathes.com>
+Wolf T. Mathes — <hello@wolfmathes.com>
 
 ## License
 
