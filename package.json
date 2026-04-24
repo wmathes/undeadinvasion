@@ -11,7 +11,7 @@
     "url": "git+https://github.com/wmathes/undeadinvasion.git"
   },
   "bin": {
-    "undeadinvasion": "./bin/undeadinvasion.mjs"
+    "undeadinvasion": "bin/undeadinvasion.mjs"
   },
   "files": [
     "bin",
