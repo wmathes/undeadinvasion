@@ -9,69 +9,59 @@
     <title>Undead Invasion</title>
 
     <!--
-        Stylesheet is imported from src/main.ts so the bundler can process SCSS.
-        No ad-hoc <link> tag needed; Bun emits the final CSS into dist/.
-    -->
-
-    <!--
         Single module entry point. Bun's bundler walks imports from here
-        (TypeScript, SCSS, CreateJS/Knockout from npm) and emits a hashed bundle.
-        Legacy Script tags (Config.js, Game.js, Actions.js, app.js, jQuery, Sugar,
-        Kongregate CDN, CreateJS CDN) have all been removed - their contents are
-        consumed by the ES-module graph rooted at src/main.ts.
+        (TypeScript, CSS, PixiJS) and emits a hashed bundle.
     -->
     <script type="module" src="./src/main.ts"></script>
 </head>
 <body>
     <div id="gameDiv">
-        <!-- ko if: State() == "menu" -->
-        <div class="menu" style="position: relative; display: block; height: 0;">
+        <!--
+            Menu overlay. Its visibility is toggled by src/ui/Hud.ts based
+            on Game.State ("menu" vs "game"). All game state binding is
+            done in code now; no template engine markup in the HTML.
+        -->
+        <div id="menu" class="menu" style="position: relative; height: 0;">
             <div class="gamelogo"></div>
             <div class="gamemodeselection" style="position: absolute; top: 610px; left: 0; text-align: center; width: 920px;">
-                <button data-bind="click: function () { start('Easy'); }, clickBubble: false">Easy</button>
-                <button data-bind="click: function () { start('Normal'); }, clickBubble: false">Normal</button>
-                <button data-bind="click: function () { start('Hard'); }, clickBubble: false">Hard</button>
-                <br /><br /><button class="specialHidden" data-bind="click: function () { start('Ultra'); }, clickBubble: false">Ultra</button>
+                <button id="btn-easy">Easy</button>
+                <button id="btn-normal">Normal</button>
+                <button id="btn-hard">Hard</button>
+                <br /><br /><button id="btn-ultra" class="specialHidden">Ultra</button>
             </div>
-            <!-- ko with: GameScore -->
-            <div class="gamescore">
-                <div class="label">Time Played</div>
-                <div class="time" data-bind="text: Time"></div>
-                <div class="label">Score</div>
-                <div class="score" data-bind="text: Score"></div>
-            </div>
-            <!-- /ko -->
-        </div>
-        <!-- /ko -->
 
-        <!-- ko if: State() == "game" -->
-        <div class="interface" style="position: relative; height: 0;">
+            <!-- End-of-round score display. Hidden until Game.GameScore is non-null. -->
+            <div id="game-score" class="gamescore" hidden>
+                <div class="label">Time Played</div>
+                <div id="game-score-time" class="time"></div>
+                <div class="label">Score</div>
+                <div id="game-score-points" class="score"></div>
+            </div>
+        </div>
+
+        <!--
+            In-game HUD. Kept in HTML for now (real <button>s, accessible,
+            CSS-styleable); future iteration may move it into PixiJS so it
+            can share visual effects with the game world.
+        -->
+        <div id="hud" class="interface" hidden style="position: relative; height: 0;">
             <div class="score" style="position: absolute; top: 8px; right: 14px;">
-                <span style="font-size: 18px;" data-bind="text: Score"></span>
+                <span id="hud-score" style="font-size: 18px;">0</span>
             </div>
-            <!-- ko with: Weapon -->
-            <div class="weapon">
-                <div class="icon" data-bind="style: { backgroundImage: 'url(Images/weapon_' + _settings.Image + '.png)' }"></div>
-                <!-- ko if: !AmmoRemaining() -->
-                <div class="reload">
-                    <div class="progress" data-bind="style: { width: (ReloadPercentage() * 100) + '%' }"></div>
+            <div id="hud-weapon" class="weapon">
+                <div id="hud-weapon-icon" class="icon"></div>
+                <div id="hud-reload" class="reload" hidden>
+                    <div id="hud-reload-progress" class="progress"></div>
                 </div>
-                <!-- /ko -->
-                <div class="magazin">
-                    <!-- ko foreach: new Array(AmmoMax())  -->
-                    <div class="bullet" data-bind="css: { empty: $index() >= $parent.AmmoRemaining() }, style: { width: $parent._settings.BulletWidth, height: $parent._settings.BulletHeight }"></div>
-                    <!-- /ko -->
-                </div>
+                <div id="hud-magazine" class="magazin"></div>
             </div>
-            <!-- /ko -->
             <div class="player">
                 <div class="healthbar">
-                    <div data-bind="style: { width: HPWidth }"></div>
+                    <div id="hud-healthbar"></div>
                 </div>
                 <div class="icon"></div>
             </div>
         </div>
-        <!-- /ko -->
 
         <canvas></canvas>
 

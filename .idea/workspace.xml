@@ -5,11 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="migrate: upgrade to PixiJS v8; refactor for compatibility and performance improvements">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDEAS.md" beforeDir="false" afterPath="$PROJECT_DIR$/IDEAS.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bun.lock" beforeDir="false" afterPath="$PROJECT_DIR$/bun.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Game.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Score.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Score.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/entities/Entity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/Entity.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/entities/Player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/Player.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/weapons/Weapon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/weapons/Weapon.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ui/viewmodel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Weapon.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Weapon.test.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +106,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feat/pixijs-conversion" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -198,7 +206,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "main",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "C:/git/wmathes/undeadinvasion",
@@ -238,7 +246,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1464578910348</updated>
-      <workItem from="1776953160920" duration="17097000" />
+      <workItem from="1776953160920" duration="19308000" />
     </task>
     <task id="LOCAL-00001" summary="init: phase 1 - scaffold only,">
       <option name="closed" value="true" />
@@ -312,7 +320,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777045426390</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="migrate: upgrade to PixiJS v8; refactor for compatibility and performance improvements">
+      <option name="closed" value="true" />
+      <created>1777046855192</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1777046855192</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="ToolWindowManager">

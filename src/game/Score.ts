@@ -1,12 +1,11 @@
 /**
  * End-of-game score animation and display.
  *
- * Ported from Core.Score in the legacy app.ts. The Kongregate stats
- * upload is preserved behind a feature-detect guard so the code compiles
- * and runs without the Kongregate CDN script loaded.
+ * Signals replace the former Knockout observables: the HUD module
+ * subscribes to Time / Score / ScaleTransform and updates the DOM on change.
  */
 
-import ko from "knockout";
+import { signal, type Signal } from "../signals";
 
 // Thousands-separator formatter replacing the Sugar.js Number#format extension.
 const _numberFormat = new Intl.NumberFormat("en-US");
@@ -17,9 +16,9 @@ export interface IScore {
 }
 
 export class Score {
-    public Time: ko.Observable<string> = ko.observable("n/a");
-    public Score: ko.Observable<string> = ko.observable("0");
-    public ScaleTransform: ko.Observable<string> = ko.observable("scale(0,0)");
+    public readonly Time: Signal<string> = signal("n/a");
+    public readonly Score: Signal<string> = signal("0");
+    public readonly ScaleTransform: Signal<string> = signal("scale(0,0)");
 
     private _points: number = 0;
     private _sizeIncrease: number = 0;
@@ -33,7 +32,7 @@ export class Score {
         this._points = s.Points;
         const seconds = Math.floor((s.Time / 1000) % 60);
         const minutes = Math.floor((s.Time / 1000 - seconds) / 60);
-        this.Time(minutes + ":" + (seconds < 10 ? "0" + seconds : String(seconds)));
+        this.Time.value = minutes + ":" + (seconds < 10 ? "0" + seconds : String(seconds));
 
         //       100 -> 10
         //    10.000 -> 100
@@ -75,11 +74,11 @@ export class Score {
 
             // Display with thousands separators
             const perc = this._countTime / this._countTotal;
-            this.Score(_numberFormat.format(Math.round(this._points * perc)));
+            this.Score.value = _numberFormat.format(Math.round(this._points * perc));
 
             // Scale transform
             const scale = 1 + this._sizeIncrease * perc;
-            this.ScaleTransform("scale(" + scale + "," + scale + ")");
+            this.ScaleTransform.value = "scale(" + scale + "," + scale + ")";
         }
     }
 }

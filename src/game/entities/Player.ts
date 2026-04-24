@@ -7,8 +7,8 @@
  */
 
 import type { Container } from "pixi.js";
-import ko from "knockout";
 import { Config } from "../Config";
+import { signal } from "../../signals";
 import { game } from "../state";
 import { Tools } from "../Tools";
 import { Entity } from "./Entity";
@@ -29,8 +29,8 @@ export class Player extends Entity {
 
         this.hp = Config.Player.HpMax;
         this.hpMax = Config.Player.HpMax;
-        this.HP = ko.observable(Config.Player.HpMax);
-        this.HPMax = ko.observable(Config.Player.HpMax);
+        this.HP = signal(Config.Player.HpMax);
+        this.HPMax = signal(Config.Player.HpMax);
     }
 
     public override update(d: number): void {

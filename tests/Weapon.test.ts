@@ -5,8 +5,8 @@
  * during future refactors surface as test failures instead of silently
  * rebalancing the game.
  *
- * Note: Weapon imports `knockout` for observable UI bindings. Knockout
- * is pure JS and runs fine under Bun's test runtime with no DOM mocking.
+ * Weapon exposes AmmoMax / AmmoRemaining / ReloadPercentage as signals
+ * (from src/signals.ts). Tests read signal.value directly.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -32,8 +32,8 @@ describe("Weapon factories", () => {
     test.each(ALL_WEAPON_NAMES.map((n) => [n]))("%s factory creates a valid Weapon", (name) => {
         const w = Weapon.Create(name);
         expect(w).toBeInstanceOf(Weapon);
-        expect(w.AmmoMax()).toBeGreaterThan(0);
-        expect(w.AmmoRemaining()).toBe(w.AmmoMax());
+        expect(w.AmmoMax.value).toBeGreaterThan(0);
+        expect(w.AmmoRemaining.value).toBe(w.AmmoMax.value);
     });
 
     test("Revolver matches legacy stats", () => {

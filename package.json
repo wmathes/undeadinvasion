@@ -35,13 +35,11 @@
     "release:dry": "semantic-release --dry-run --no-ci"
   },
   "dependencies": {
-    "knockout": "^3.5.1",
     "pixi-viewport": "^6.0.3",
     "pixi.js": "8.18.1"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/knockout": "^3.4.79",
     "sass": "^1.77.0",
     "semantic-release": "^24.2.1",
     "typescript": "^5.4.0"

@@ -17,7 +17,6 @@
 
 import { Application, Container, TilingSprite } from "pixi.js";
 import { Viewport } from "pixi-viewport";
-import ko from "knockout";
 import { getTexture } from "./assets";
 import { Bullet } from "./Bullet";
 import { Config } from "./Config";
@@ -32,6 +31,8 @@ import { Weapon } from "./weapons/Weapon";
 import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
 import { PowerUp } from "./entities/PowerUp";
+import { signal, type Signal } from "../signals";
+import { Hud } from "../ui/Hud";
 
 export class Game {
     // -------- Global Ref --------
@@ -62,36 +63,39 @@ export class Game {
         return this._viewport;
     }
 
-    // -------- Observables (Knockout-bound) --------
-    private _score: ko.Observable<number> = ko.observable(0);
-    public get Score(): ko.Observable<number> {
+    // -------- Reactive state (consumed by src/ui/Hud.ts) --------
+    private readonly _score: Signal<number> = signal(0);
+    public get Score(): Signal<number> {
         return this._score;
     }
 
-    private _weapon: ko.Observable<Weapon | null> = ko.observable(null);
-    public get Weapon(): ko.Observable<Weapon | null> {
+    private readonly _weapon: Signal<Weapon | null> = signal<Weapon | null>(null);
+    public get Weapon(): Signal<Weapon | null> {
         return this._weapon;
     }
 
-    private _state: ko.Observable<string> = ko.observable("menu");
-    public get State(): ko.Observable<string> {
+    private readonly _state: Signal<string> = signal("menu");
+    public get State(): Signal<string> {
         return this._state;
     }
 
-    private _paused: ko.Observable<boolean> = ko.observable(false);
-    public get Paused(): ko.Observable<boolean> {
+    private readonly _paused: Signal<boolean> = signal(false);
+    public get Paused(): Signal<boolean> {
         return this._paused;
     }
 
-    public GameScore: ko.Observable<Score | null> = ko.observable(null);
-    public HPWidth: ko.Observable<string> = ko.observable("100%");
+    public readonly GameScore: Signal<Score | null> = signal<Score | null>(null);
+    public readonly HPWidth: Signal<string> = signal("100%");
 
     // -------- Internal state --------
     private _vanishingEntities: VanishingEntity[] = [];
     private _bullets: Bullet[] = [];
     private _entities: IEntityBase[] = [];
     private _entityQueue: IEntityBase[] = [];
-    private _killCount: ko.Observable<number> = ko.observable(0);
+    private readonly _killCount: Signal<number> = signal(0);
+
+    /** HUD owner. Holds DOM bindings + unsubscribes. Created in init(). */
+    private _hud!: Hud;
 
     public get Entities(): IEntityBase[] {
         return this._entities;
@@ -162,7 +166,7 @@ export class Game {
 
     /**
      * Async half of construction: boot PixiJS (v8 Application.init is
-     * async), wire the camera viewport, containers, ticker, Knockout
+     * async), wire the camera viewport, containers, ticker, HTML HUD
      * bindings, pointer + keyboard listeners, and kick off SFX preload.
      *
      * Expects the DOM to be ready and preloadAssets() to have completed.
@@ -242,10 +246,9 @@ export class Game {
             this.tickCamera(dt);
         });
 
-        // Knockout bindings on <body>
-        const body = document.body;
-        ko.cleanNode(body);
-        ko.applyBindings(this, body);
+        // HUD: wires DOM elements in index.html to the signals on this Game.
+        // Replaces the former Knockout applyBindings(this, body) call.
+        this._hud = new Hud(this);
 
         // Pointer events (unified mouse + touch). We feed two things into
         // the Input system:
@@ -368,7 +371,7 @@ export class Game {
     public spawnPlayer(): void {
         const player = new Player(this._entityContainer);
         this._player = player;
-        this.Weapon(Weapon.Pistol());
+        this.Weapon.value = Weapon.Pistol();
 
         // Snap the virtual camera target onto the player so we start
         // centred, not tweening in from wherever the menu camera sat.
@@ -380,14 +383,15 @@ export class Game {
         this._gameLength = 0;
         this._gameSpawnNext = 0;
         this._gameSpawnIndex = 0;
-        this._killCount(0);
+        this._killCount.value = 0;
         this._entities = [];
         this._bullets = [];
-        this.Score(0);
+        this.Score.value = 0;
 
         this._player = null;
-        this._state("menu");
-        this._paused(true);
+        this._state.value = "menu";
+        this._paused.value = true;
+        this.GameScore.value = null;
 
         this.SwitchDifficulty(difficulty);
 
@@ -405,8 +409,8 @@ export class Game {
         this.reset(difficulty);
         this.spawnPlayer();
 
-        this._state("game");
-        this._paused(false);
+        this._state.value = "game";
+        this._paused.value = false;
 
         for (let i = 0; i < this.Difficulty.InitialZombies; i++) {
             this.spawnEnemy("Zombie", true);
@@ -416,12 +420,10 @@ export class Game {
     public end(): void {
         if (!this._player) return;
 
-        this.GameScore(
-            new Score({
-                Points: this.Score(),
-                Time: this._gameLength,
-            }),
-        );
+        this.GameScore.value = new Score({
+            Points: this.Score.value,
+            Time: this._gameLength,
+        });
 
         this.splatterBones(this._player.position.x, this._player.position.y);
 
@@ -434,14 +436,18 @@ export class Game {
         this._player = null;
 
         this.showGameOverOverlay(() => {
-            this.GameScore()?.upload();
+            this.GameScore.value?.upload();
             setTimeout(() => {
                 if (this._messageGameOver) {
                     this._messageGameOver.style.display = "none";
                     this._messageGameOver.style.opacity = "";
                 }
+                // Snapshot the score before reset clears it, so we can
+                // still animate the end-of-round display after the reset.
+                const finalScore = this.GameScore.value;
                 this.reset();
-                this.GameScore()?.animate();
+                this.GameScore.value = finalScore;
+                finalScore?.animate();
             }, Config.GameOver.HoldBeforeResetMs);
         });
     }
@@ -468,25 +474,25 @@ export class Game {
 
     public stop(): void {
         this.reset();
-        this._state("menu");
+        this._state.value = "menu";
     }
 
     public togglePause(): void {
-        if (this._state() === "game") this._paused(!this._paused());
+        if (this._state.value === "game") this._paused.value = !this._paused.value;
     }
 
     public pause(): void {
-        if (this._state() === "game") this._paused(true);
+        if (this._state.value === "game") this._paused.value = true;
     }
 
     public resume(): void {
-        if (this._state() === "game") this._paused(false);
+        if (this._state.value === "game") this._paused.value = false;
     }
 
     // -------- Main tick --------
 
     public tick(d: number): void {
-        if (!this._paused() && this._state() === "game") {
+        if (!this._paused.value && this._state.value === "game") {
             this._gameLength += d;
             this.tickRespawn(d);
             this.tickBullets(d);
@@ -535,13 +541,13 @@ export class Game {
         if (this._player) {
             v = Math.round(100 * (this._player.hp / this._player.hpMax)) + "%";
         }
-        this.HPWidth(v);
+        this.HPWidth.value = v;
     }
 
     public tickPlayer(d: number): void {
         if (this._player) {
             this._player.update(d);
-            if ((this._player.HP?.() ?? 0) <= 0) {
+            if ((this._player.HP?.value ?? 0) <= 0) {
                 this.end();
             }
         }
@@ -576,13 +582,13 @@ export class Game {
                         ent.rotation.angle,
                         (ent.options as { scale?: number }).scale,
                     );
-                    if (Math.random() < this.Difficulty.PowerUpChance || this._killCount() === 0) {
-                        this.spawnPowerup(ent.position.x, ent.position.y, this._killCount() === 0);
+                    if (Math.random() < this.Difficulty.PowerUpChance || this._killCount.value === 0) {
+                        this.spawnPowerup(ent.position.x, ent.position.y, this._killCount.value === 0);
                     }
-                    this._killCount(this._killCount() + 1);
+                    this._killCount.value = this._killCount.value + 1;
                 } else {
                     const powerUp = entBase as PowerUp;
-                    const p = powerUp.options.pointValue * this.Difficulty.ScoreFactor + Math.sqrt(this.Score());
+                    const p = powerUp.options.pointValue * this.Difficulty.ScoreFactor + Math.sqrt(this.Score.value);
                     scoreIncrease += p;
                 }
 
@@ -590,7 +596,7 @@ export class Game {
             }
         });
 
-        this.Score(this.Score() + Math.floor(scoreIncrease * scoreTimeFactor));
+        this.Score.value = this.Score.value + Math.floor(scoreIncrease * scoreTimeFactor);
         this._entities = [...newEntities, ...this._entityQueue];
     }
 
@@ -633,7 +639,7 @@ export class Game {
     }
 
     public tickWeapon(d: number): void {
-        const weapon = this.Weapon();
+        const weapon = this.Weapon.value;
         if (weapon) {
             weapon.update(d, this.Input.Fire.Clicked && !!this._player);
 
@@ -656,14 +662,14 @@ export class Game {
 
     public EquipWeapon(name: string): void {
         try {
-            this.Weapon(Weapon.Create(name));
+            this.Weapon.value = Weapon.Create(name);
         } catch {
             // Unknown weapon name - ignore, matching legacy behaviour
         }
     }
 
     public EquipRandomWeapon(): void {
-        this.Weapon(Weapon.Random());
+        this.Weapon.value = Weapon.Random();
     }
 
     public SwitchDifficulty(difficulty: DifficultyName | string = "Normal"): void {

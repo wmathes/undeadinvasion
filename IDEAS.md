@@ -4,8 +4,8 @@ Deferred ideas from the modernization effort. None of these block playability on
 
 ## UI / Framework
 
-- **Drop Knockout 2.3.0.** Used only in `index.html` for menu state, score, health bar, weapon UI, and game-over screen. Replace with either a small hand-rolled reactive binding (~50 lines) or a lightweight modern library (Alpine.js, Preact signals, Solid). Knockout still works but is unmaintained and adds ~40 KB.
 - **Drop the global `game` singleton.** Pass the `Game` instance through constructors or expose it via a dedicated module accessor. Currently every entity/action/bullet reaches into a module-level `export let game: Game`.
+- **Move the HUD into PixiJS.** It's currently HTML (`src/ui/Hud.ts` wires DOM elements to signals). Moving the score / health / weapon display into the Pixi scene would let us apply visual effects (damage flash, pickup pop-ups, camera-linked shake) consistently with the rest of the game. Menu + game-over overlay can stay HTML — they benefit from keyboard accessibility.
 
 ## Engine
 
@@ -45,4 +45,4 @@ Deferred ideas from the modernization effort. None of these block playability on
 
 ## Compliance / Legal
 
-- **License file.** Original CreateJS / Knockout / jQuery / PixiJS licenses should be preserved or at least acknowledged in a `THIRD_PARTY_LICENSES.md`.
+- **License file.** Original CreateJS / jQuery / PixiJS licenses should be preserved or at least acknowledged in a `THIRD_PARTY_LICENSES.md`.

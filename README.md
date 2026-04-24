@@ -95,7 +95,7 @@ undeadinvasion/
 - **TypeScript** in strict mode targeting ES2022, using `moduleResolution: "bundler"`.
 - **[PixiJS 8](https://pixijs.com)** for the WebGL-backed display tree, sprites, animated sprites, and frame-by-frame ticker.
 - **Web Audio API** (native, no wrapper library) via a small `AudioManager` that decodes each file into an `AudioBuffer` once and plays overlapping `BufferSourceNode`s on demand.
-- **[Knockout 3.5](https://knockoutjs.com)** for menu, HUD, and game-over score bindings.
+- **Hand-rolled signal-based UI** — 50-line reactive primitive in `src/signals.ts` + `src/ui/Hud.ts` wires DOM to game state. Replaced Knockout during the v2 modernisation.
 - **Pointer Events** for unified mouse / touch / pen input.
 
 Originally built on CreateJS (EaselJS + SoundJS) in 2013, migrated to PixiJS 8 in 2026 to give the foundation for the feature work on the roadmap (camera / viewport, trails, blur filters, particle systems).
@@ -134,7 +134,7 @@ Rendering and input code are intentionally not tested — visual regressions are
 
 See [IDEAS.md](./IDEAS.md) for deferred improvements, including:
 
-- Dropping Knockout in favour of a small hand-rolled reactive binding
+- Moving the HUD into PixiJS for integrated visual effects (damage flash, pickup popups, screen shake)
 - Bullet trails and motion blur (now cheap on PixiJS with filters)
 - Camera / viewport system via `pixi-viewport` for scrollable multi-level maps
 - Wiring up the unused BGM and weapon-specific SFX that ship with the repo

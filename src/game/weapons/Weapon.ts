@@ -6,9 +6,9 @@
  * spread) so gameplay feel is preserved.
  */
 
-import ko from "knockout";
 import { Config } from "../Config";
 import type { IBullet, IWeapon } from "../interfaces";
+import { signal, type Signal } from "../../signals";
 
 export class Weapon {
     // -------- Weapon factories (13 weapons, values unchanged) --------
@@ -334,9 +334,9 @@ export class Weapon {
 
     // -------- Instance state --------
 
-    public AmmoMax: ko.Observable<number> = ko.observable(0);
-    public AmmoRemaining: ko.Observable<number> = ko.observable(0);
-    public ReloadPercentage: ko.Observable<number> = ko.observable(0);
+    public readonly AmmoMax: Signal<number> = signal(0);
+    public readonly AmmoRemaining: Signal<number> = signal(0);
+    public readonly ReloadPercentage: Signal<number> = signal(0);
     public ImageName: string;
 
     private _lastFire: number = 999999;
@@ -355,8 +355,8 @@ export class Weapon {
 
         this.ImageName = "Images/Weapon_" + this._settings.Name + ".png";
 
-        this.AmmoRemaining(this._settings.AmmoMax);
-        this.AmmoMax(this._settings.AmmoMax);
+        this.AmmoRemaining.value = this._settings.AmmoMax;
+        this.AmmoMax.value = this._settings.AmmoMax;
     }
 
     public getQueue(): IBullet[] {
@@ -372,14 +372,14 @@ export class Weapon {
         this._lastFire += d;
 
         // Reloading?
-        if (!this.AmmoRemaining()) {
+        if (!this.AmmoRemaining.value) {
             let perc = this._lastFire / this._settings.SpeedReload;
             if (perc < 0) perc = 0;
             if (perc > 1) perc = 1;
-            this.ReloadPercentage(perc);
+            this.ReloadPercentage.value = perc;
 
             if (this._lastFire > this._settings.SpeedReload) {
-                this.AmmoRemaining(this.AmmoMax());
+                this.AmmoRemaining.value = this.AmmoMax.value;
             }
         }
         // Attempt to fire
@@ -402,7 +402,7 @@ export class Weapon {
     }
 
     public shoot(): void {
-        if (this.AmmoRemaining() > 0) {
+        if (this.AmmoRemaining.value > 0) {
             for (let i = 0; i < this._settings.BulletCount; i++) {
                 const d = Math.floor(this._settings.DamageBase + this._settings.DamageSpread * Math.random());
 
@@ -423,7 +423,7 @@ export class Weapon {
                 this._shootQueue.push(b);
             }
 
-            this.AmmoRemaining(this.AmmoRemaining() - 1);
+            this.AmmoRemaining.value = this.AmmoRemaining.value - 1;
             this._lastFire = 0;
             this._buttonWasReleased = false;
         }

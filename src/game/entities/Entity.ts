@@ -6,11 +6,11 @@
  */
 
 import { AnimatedSprite, Container, Texture } from "pixi.js";
-import ko from "knockout";
 import { Config } from "../Config";
 import type { IEnemyOptions, IEntityAction, IEntityBase } from "../interfaces";
 import { Position, Rotation } from "../Position";
 import { getRandomZombieFrames, getSpritesheetFrames, type SpritesheetName } from "../assets";
+import { type Signal } from "../../signals";
 import { game } from "../state";
 import { Tools } from "../Tools";
 import { IdleAction } from "../Actions";
@@ -29,8 +29,8 @@ export class Entity implements IEntityBase {
     public hp: number = 100;
     public hpMax: number = 100;
 
-    public HP: ko.Observable<number> | undefined;
-    public HPMax: ko.Observable<number> | undefined;
+    public HP: Signal<number> | undefined;
+    public HPMax: Signal<number> | undefined;
 
     public guid: string = "";
 
@@ -80,7 +80,7 @@ export class Entity implements IEntityBase {
     public addHealth(amount: number, splatterHealth: boolean = false): void {
         if (amount > 0 && this.hp < this.hpMax) {
             this.hp = amount + this.hp > this.hpMax ? this.hpMax : this.hp + amount;
-            if (this.HP) this.HP(this.hp);
+            if (this.HP) this.HP.value = this.hp;
             if (splatterHealth) {
                 // TODO: splatter health effect
             }
@@ -102,7 +102,7 @@ export class Entity implements IEntityBase {
                     game.splatterBlood(x, y);
                 }
 
-                if (this.HP) this.HP(this.hp);
+                if (this.HP) this.HP.value = this.hp;
             }
         }
     }
