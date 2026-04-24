@@ -1,5 +1,5 @@
 {
-  "name": "undeadinvasion",
+  "name": "@tailstorm/undeadinvasion",
   "version": "2.0.0",
   "description": "Undead Invasion - modernized from the original 2013 university project.",
   "private": true,

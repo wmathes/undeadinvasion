@@ -7,6 +7,7 @@
  */
 
 import ko from "knockout";
+import { Config } from "../Config";
 import type { IBullet, IWeapon } from "../interfaces";
 
 export class Weapon {
@@ -413,7 +414,7 @@ export class Weapon {
                     DamageMax: this._settings.DamageMax,
                     Type: this._settings.BulletType,
                     TrailColor: this._settings.TrailColor,
-                    Size: 12,
+                    Size: Config.Bullet.DefaultSize,
                     FadeFactor: this._settings.BulletFadeFactor,
                     ScaleFactor: this._settings.BulletScaleFactor,
                     SpeedFactor: this._settings.BulletSpeedFactor,

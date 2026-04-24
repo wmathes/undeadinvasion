@@ -63,7 +63,9 @@ export class Entity implements IEntityBase {
         this.updateDisplayElement();
 
         // Health scaled by difficulty
-        const hp = Math.floor((50 + Math.random() * 100) * game.Difficulty.EnemyHealthFactor);
+        const hp = Math.floor(
+            (Config.Enemy.HpBase + Math.random() * Config.Enemy.HpSpread) * game.Difficulty.EnemyHealthFactor,
+        );
         this.hp = hp;
         this.hpMax = hp;
 
@@ -91,10 +93,10 @@ export class Entity implements IEntityBase {
             if (amount > 0) {
                 this.hp -= amount;
 
-                // Small blood ring
-                for (let i = 0; i < amount; i += 40) {
+                // Small blood ring - one splatter per BloodPerHp of damage
+                for (let i = 0; i < amount; i += Config.Enemy.BloodPerHp) {
                     const randomAngle = Math.random() * (Math.PI * 2);
-                    const randomDistance = Math.random() * 0.6 * this.options.size;
+                    const randomDistance = Math.random() * Config.Enemy.BloodSpreadFactor * this.options.size;
                     const y = this.position.y + randomDistance * Math.sin(randomAngle);
                     const x = this.position.x + randomDistance * Math.cos(randomAngle);
                     game.splatterBlood(x, y);
@@ -106,7 +108,7 @@ export class Entity implements IEntityBase {
     }
 
     public hasDied(): boolean {
-        return this.hp <= 0 && this._deathTime > 60;
+        return this.hp <= 0 && this._deathTime > Config.Enemy.DeathDelayMs;
     }
 
     public updateDisplayElement(): void {
@@ -153,7 +155,7 @@ export class Entity implements IEntityBase {
 
     public updateAttack(d: number): void {
         this.lastAttack += d;
-        if (this.isAttacking && this.lastAttack > 800) {
+        if (this.isAttacking && this.lastAttack > Config.Enemy.AttackCooldownMs) {
             this.lastAttack = 0;
             this.attack();
         }
@@ -161,15 +163,18 @@ export class Entity implements IEntityBase {
 
     public attack(): void {
         if (game.Player) {
-            const dmg = Math.round((6 + Math.random() * 2) * game.Difficulty.EnemyDamageFactor);
+            const dmg = Math.round(
+                (Config.Enemy.AttackDamageBase + Math.random() * Config.Enemy.AttackDamageSpread) *
+                    game.Difficulty.EnemyDamageFactor,
+            );
             game.Player.addDamage(dmg);
         }
     }
 
     public update(delta: number): void {
-        // Spawn fade-in
+        // Spawn fade-in (legacy alpha-per-frame, not time-normalised)
         if (this._spawning && this._displayElement) {
-            this._displayElement.alpha += 0.025;
+            this._displayElement.alpha += Config.Enemy.SpawnFadeInPerFrame;
             if (this._displayElement.alpha >= 1) {
                 this._spawning = false;
             }

@@ -39,12 +39,12 @@ export class Bullet {
 
     constructor(options: IBullet, x: number, y: number, baseAngle: number, c: Container) {
         // Defaults
-        options.TrailColor = options.TrailColor ?? ["#AAAAAA", "#222222"];
+        options.TrailColor = options.TrailColor ?? [...Config.Bullet.DefaultTrailColor];
         options.Type = options.Type ?? "default";
         options.FadeFactor = options.FadeFactor ?? 1;
         options.ScaleFactor = options.ScaleFactor ?? 1;
         options.SpeedFactor = options.SpeedFactor ?? 1;
-        options.TrailWidth = options.TrailWidth ?? 2;
+        options.TrailWidth = options.TrailWidth ?? Config.Bullet.DefaultTrailWidth;
 
         this._settings = options;
         this._lifeTime = this._settings.LifeTime;
@@ -54,14 +54,14 @@ export class Bullet {
         this._position = new Position(x, y);
 
         // Nudge forward so the bullet doesn't spawn inside the player sprite
-        this.moveForward(18);
+        this.moveForward(Config.Bullet.SpawnOffsetForward);
 
         this._origin = new Position(this._position.x, this._position.y);
 
         // Bullet sprite
         const texture = getTexture(`Images/bullet_${this._settings.Type}.png`);
         const sprite = new Sprite(texture);
-        sprite.pivot.set(8, 8);
+        sprite.pivot.set(Config.Bullet.PivotX, Config.Bullet.PivotY);
         sprite.x = this._origin.x;
         sprite.y = this._origin.y;
         sprite.rotation = Tools.DegToRad(this._rotation.angle);

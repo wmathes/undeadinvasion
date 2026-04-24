@@ -15,7 +15,7 @@ import { Tools } from "../Tools";
 
 export class PowerUp implements IEntityBase {
     public static GetRandom(container: Container, x: number, y: number, forceWeapon: boolean = false): PowerUp {
-        const options: IPowerUpOptions = { x, y, pointValue: 100 };
+        const options: IPowerUpOptions = { x, y, pointValue: Config.PowerUp.PointValue };
         const rnd = Math.random();
         if (forceWeapon || rnd < 0.5) {
             return new RandomWeaponPowerUp(container, options);
@@ -75,7 +75,7 @@ export class PowerUp implements IEntityBase {
             const texture = getTexture(`Images/${imagePath}`);
             const sprite = new Sprite(texture);
             sprite.alpha = 0;
-            sprite.pivot.set(24, 15);
+            sprite.pivot.set(Config.PowerUp.RegX, Config.PowerUp.RegY);
             sprite.x = this.position.x;
             sprite.y = this.position.y;
             this._sprite = sprite;
@@ -84,7 +84,7 @@ export class PowerUp implements IEntityBase {
     }
 
     public canBeTaken(position: Position): boolean {
-        return !this._taken && Tools.GetDistance(position, this.position) < 28;
+        return !this._taken && Tools.GetDistance(position, this.position) < Config.PowerUp.PickupRadius;
     }
 
     public update(delta: number): void {
@@ -94,10 +94,12 @@ export class PowerUp implements IEntityBase {
 
         if (this._sprite) {
             let alpha = 1.0;
-            if (this._lifeTime < 200) {
-                alpha = this._lifeTime / 200;
-            } else if (this._lifeTime > this._lifeTimeMax - 1600) {
-                alpha = 1 - (this._lifeTime - (this._lifeTimeMax - 1600)) / 1600;
+            const fadeIn = Config.PowerUp.FadeInMs;
+            const fadeOut = Config.PowerUp.FadeOutMs;
+            if (this._lifeTime < fadeIn) {
+                alpha = this._lifeTime / fadeIn;
+            } else if (this._lifeTime > this._lifeTimeMax - fadeOut) {
+                alpha = 1 - (this._lifeTime - (this._lifeTimeMax - fadeOut)) / fadeOut;
             }
             this._sprite.alpha = alpha;
         }
@@ -115,7 +117,7 @@ export class HealPowerUp extends PowerUp {
         super(container, options, "health.png");
     }
     public override take(): void {
-        game.Player?.addHealth(25, false);
+        game.Player?.addHealth(Config.PowerUp.HealAmount, false);
     }
 }
 

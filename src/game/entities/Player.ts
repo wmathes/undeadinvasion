@@ -1,9 +1,9 @@
 /**
  * The player entity.
  *
- * Ported to PixiJS v7. Movement maths unchanged. Super (Entity) now owns
- * an AnimatedSprite rather than a createjs.Sprite; the spawning fade-in
- * overrides work identically because both expose `.alpha`.
+ * Movement maths unchanged from the legacy build; all tunable values now
+ * come from Config.Player (size, speed, HP, diagonal factor, backward
+ * penalty, sprite pivot, world crop margin).
  */
 
 import type { Container } from "pixi.js";
@@ -16,27 +16,27 @@ import { Entity } from "./Entity";
 export class Player extends Entity {
     constructor(container: Container) {
         super(container, {
-            size: 36,
-            moveSpeed: 90 / 1000,
+            size: Config.Player.Size,
+            moveSpeed: Config.Player.MoveSpeedPxPerMs,
             name: "Player",
-            regX: 18,
-            regY: 15,
+            regX: Config.Player.RegX,
+            regY: Config.Player.RegY,
             pointValue: 0,
             scale: 1,
             x: Config.World.Width / 2,
             y: Config.World.Height / 2,
         });
 
-        this.hp = 100;
-        this.hpMax = 100;
-        this.HP = ko.observable(100);
-        this.HPMax = ko.observable(100);
+        this.hp = Config.Player.HpMax;
+        this.hpMax = Config.Player.HpMax;
+        this.HP = ko.observable(Config.Player.HpMax);
+        this.HPMax = ko.observable(Config.Player.HpMax);
     }
 
     public override update(d: number): void {
-        // Spawning
+        // Spawning fade-in (legacy alpha-per-frame, not time-normalised)
         if (this._spawning && this.DisplayObject) {
-            this.DisplayObject.alpha += 0.025;
+            this.DisplayObject.alpha += Config.Enemy.SpawnFadeInPerFrame;
             if (this.DisplayObject.alpha >= 1) {
                 this._spawning = false;
             }
@@ -46,11 +46,12 @@ export class Player extends Entity {
         this.rotation.angle = Tools.GetAngle(this.position, game.Input.CursorPosition);
 
         const distance = (this.options.moveSpeed ?? 0) * d;
-        const distanceDiagonal = distance * 0.707;
+        const distanceDiagonal = distance * Config.Player.DiagonalFactor;
 
+        // Speed penalty for moving away from facing direction
         const getAngleFactor = (directionAngle: number): number => {
             const angleDistance = Tools.GetAngleOffset(this.rotation.angle, directionAngle, 360);
-            return 1 - (Math.abs(angleDistance) / 180) * 0.4;
+            return 1 - (Math.abs(angleDistance) / 180) * Config.Player.BackwardSpeedPenalty;
         };
         let runspeedFactor = 1;
 
@@ -95,7 +96,8 @@ export class Player extends Entity {
             this.position.x -= runspeedFactor * distance;
         }
 
-        this.position.crop(Config.World.Width - 20, Config.World.Height - 20, 20, 20);
+        const m = Config.Player.CropMargin;
+        this.position.crop(Config.World.Width - m, Config.World.Height - m, m, m);
         this.updateDisplayElement();
     }
 }

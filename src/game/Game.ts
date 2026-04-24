@@ -119,6 +119,16 @@ export class Game {
 
     private _messageGameOver: HTMLElement | null = null;
 
+    /**
+     * Virtual camera target. Each frame this point exponentially tweens
+     * toward the player's position; the viewport's centre is snapped to
+     * it. Gives a smooth, lag-aware camera (configurable via
+     * Config.Camera.Smoothness) instead of a rigid drag-behind follow.
+     *
+     * `null` when there's no player (menu, mid-transition, game over).
+     */
+    private _cameraTarget: { x: number; y: number } | null = null;
+
     // -------- Construction --------
     constructor(playfieldName: string) {
         // Register as current + expose through ./state before any sub-
@@ -190,12 +200,11 @@ export class Game {
         this._viewport.addChild(this._groundContainer, this._entityContainer, this._effectContainer);
 
         // Game loop tick - Pixi ticker delta is in "frames" but .deltaMS
-        // carries the real milliseconds the game logic expects. The
-        // viewport needs its own update call for follow/easing plugins.
+        // carries the real milliseconds the game logic expects.
         this._app.ticker.add(() => {
             const dt = this._app.ticker.deltaMS;
             this.tick(dt);
-            this._viewport.update(dt);
+            this.tickCamera(dt);
         });
 
         // Default difficulty so SwitchDifficulty() has something to fall back on
@@ -308,19 +317,20 @@ export class Game {
                 y = Math.random() * Config.World.Height;
             }
 
-            const scale = 0.75 + Math.random() * 0.75;
+            const scale =
+                Config.Enemy.ScaleMin + Math.random() * (Config.Enemy.ScaleMax - Config.Enemy.ScaleMin);
 
             const enemy = new Entity(this._entityContainer, {
-                angleSpeed: 60 / 1000,
-                moveSpeed: 40 / 1000,
+                angleSpeed: Config.Enemy.AngleSpeedPerMs,
+                moveSpeed: Config.Enemy.MoveSpeedPerMs,
                 name: entityName,
-                size: 24 * scale,
+                size: Config.Enemy.SizeBase * scale,
                 x,
                 y,
                 scale,
-                pointValue: 5 + Math.floor(scale * 15),
-                regX: 15,
-                regY: 13,
+                pointValue: Config.Enemy.PointValueBase + Math.floor(scale * Config.Enemy.PointValueScale),
+                regX: Config.Enemy.RegX,
+                regY: Config.Enemy.RegY,
             });
 
             this._entities.push(enemy);
@@ -332,21 +342,10 @@ export class Game {
         this._player = player;
         this.Weapon(Weapon.Pistol());
 
-        // Camera tracks the player. `radius` gives rubber-band feel:
-        // the camera only chases once the player steps outside this pixel
-        // radius from the current camera centre, producing a dead-zone
-        // around the player's immediate movement.
-        const playerSprite = player.DisplayObject;
-        if (playerSprite) {
-            this._viewport.follow(playerSprite, {
-                speed: 0, // 0 = snappy; raise (e.g. 8) for more inertia
-                acceleration: null,
-                radius: 80,
-            });
-        } else {
-            // Fallback: jump camera to player position once without follow
-            this._viewport.moveCenter(player.position.x, player.position.y);
-        }
+        // Snap the virtual camera target onto the player so we start
+        // centred, not tweening in from wherever the menu camera sat.
+        this._cameraTarget = { x: player.position.x, y: player.position.y };
+        this._viewport.moveCenter(player.position.x, player.position.y);
     }
 
     public reset(difficulty?: DifficultyName | string): void {
@@ -368,8 +367,9 @@ export class Game {
         this._groundContainer.removeChildren();
         this._entityContainer.removeChildren();
 
-        // Detach the camera follow so the viewport doesn't chase a freed sprite.
-        this._viewport.plugins.remove("follow");
+        // Stop the camera tween and park the viewport on world centre
+        // until the next player spawn resnaps it.
+        this._cameraTarget = null;
         this._viewport.moveCenter(Config.World.Width / 2, Config.World.Height / 2);
     }
 
@@ -397,10 +397,9 @@ export class Game {
 
         this.splatterBones(this._player.position.x, this._player.position.y);
 
-        // Detach the viewport follow BEFORE the sprite is destroyed; the
-        // follow plugin reads target.position every frame and would crash
-        // on the next tick otherwise.
-        this._viewport.plugins.remove("follow");
+        // Stop tweening and leave the camera parked over the player's
+        // last position, so Game Over stays framed on where they died.
+        this._cameraTarget = null;
         this._viewport.moveCenter(this._player.position.x, this._player.position.y);
 
         this._player.removeElement();
@@ -415,7 +414,7 @@ export class Game {
                 }
                 this.reset();
                 this.GameScore()?.animate();
-            }, 1600);
+            }, Config.GameOver.HoldBeforeResetMs);
         });
     }
 
@@ -425,9 +424,10 @@ export class Game {
             onDone();
             return;
         }
+        const fadeMs = Config.GameOver.FadeInMs;
         el.style.opacity = "0";
         el.style.display = "";
-        el.style.transition = "opacity 2.4s";
+        el.style.transition = `opacity ${fadeMs}ms`;
         void el.offsetWidth;
         el.style.opacity = "1";
         const handler = (): void => {
@@ -435,7 +435,7 @@ export class Game {
             onDone();
         };
         el.addEventListener("transitionend", handler);
-        setTimeout(handler, 2500);
+        setTimeout(handler, fadeMs + 100);
     }
 
     public stop(): void {
@@ -484,7 +484,7 @@ export class Game {
                 this.spawnEnemy("Zombie", true);
             }
 
-            let nextSpawn = this._difficulty.DelayMax - this._gameSpawnIndex * 4;
+            let nextSpawn = this._difficulty.DelayMax - this._gameSpawnIndex * Config.Respawn.NextSpawnStepMs;
             if (nextSpawn < this._difficulty.DelayMin) nextSpawn = this._difficulty.DelayMin;
 
             this._gameSpawnNext = nextSpawn;
@@ -540,7 +540,7 @@ export class Game {
 
                 // Distinguish Entity (has moveForward) from PowerUp (doesn't)
                 if (typeof ent.moveForward === "function" && ent.options) {
-                    this._gameSpawnNext -= 100;
+                    this._gameSpawnNext -= Config.Respawn.KillSpeedBonusMs;
                     scoreIncrease += ent.options.pointValue * this.Difficulty.ScoreFactor;
                     this.splatterBones(
                         ent.position.x,
@@ -569,6 +569,39 @@ export class Game {
     public tickGroundEffects(d: number): void {
         this._vanishingEntities.forEach((el) => el.update(d));
         this._vanishingEntities = this._vanishingEntities.filter((v) => !v.isRemoved());
+    }
+
+    /**
+     * Exponentially tween the virtual camera target toward the player,
+     * then snap the viewport centre to the target. Framerate-independent:
+     * the fraction of distance closed per tick is 1 - exp(-s*dt), so a
+     * 60Hz and a 120Hz display produce identical camera trajectories.
+     *
+     * Dead-zone: while the player is within Config.Camera.DeadZoneRadius
+     * of the current target, the target stays put (camera doesn't jitter
+     * for small movements). Set the radius to 0 to always chase.
+     */
+    public tickCamera(d: number): void {
+        if (!this._cameraTarget || !this._player) return;
+
+        const targetX = this._player.position.x;
+        const targetY = this._player.position.y;
+        const dx = targetX - this._cameraTarget.x;
+        const dy = targetY - this._cameraTarget.y;
+
+        const deadZone = Config.Camera.DeadZoneRadius;
+        if (deadZone > 0) {
+            const distSq = dx * dx + dy * dy;
+            if (distSq < deadZone * deadZone) {
+                this._viewport.moveCenter(this._cameraTarget.x, this._cameraTarget.y);
+                return;
+            }
+        }
+
+        const alpha = 1 - Math.exp(-Config.Camera.Smoothness * d);
+        this._cameraTarget.x += dx * alpha;
+        this._cameraTarget.y += dy * alpha;
+        this._viewport.moveCenter(this._cameraTarget.x, this._cameraTarget.y);
     }
 
     public tickWeapon(d: number): void {

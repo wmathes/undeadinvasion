@@ -1,14 +1,30 @@
 /**
- * Game configuration.
+ * Centralised game configuration.
  *
- * Ported verbatim from the legacy Scripts/Config.ts - all values unchanged
- * to preserve gameplay balance. Only the top-level declaration moved from
- * a global `var` to a named `export const`.
+ * Every tunable gameplay value lives here - HP, speeds, damage, cooldowns,
+ * pickup radii, fade durations, camera feel. The aim is that rebalancing or
+ * experimenting with level design requires only touching this file and
+ * running the game; no module-internal magic numbers to chase down.
+ *
+ * Values grouped by domain:
+ *   Game      - viewport / canvas resolution
+ *   World     - gameplay area size (per-level override planned for step 7)
+ *   Camera    - smoothing / dead-zone
+ *   Player    - player stats & movement
+ *   Enemy     - zombie stats & behaviour
+ *   Bullet    - projectile defaults
+ *   PowerUp   - pickup behaviour
+ *   GameOver  - death-screen timing
+ *   Respawn   - spawn-rate modulation
+ *   Difficulties - per-difficulty multipliers (applied on top of the above)
+ *   Effects   - blood / bone splatter visuals
  */
 
 import type { IGameDifficulty, IVanishingEntitySettings } from "./interfaces";
 
 export const Config = {
+    // ==================== Renderer / layout ====================
+
     /**
      * Viewport / canvas resolution - how many pixels the renderer draws
      * per frame. Kept at 900x700 for parity with the 2013 build. Display
@@ -18,18 +34,145 @@ export const Config = {
         Width: 900,
         Height: 700,
     },
+
     /**
      * Gameplay world size - the bounded area entities can spawn and move
      * through. The camera (Viewport) moves over this world following the
      * player; on screens smaller than the world, only a slice is visible.
-     *
-     * Bumped past viewport size so the camera has room to scroll. Later
-     * per-level configuration (roadmap step 7) will override this per map.
+     * Per-level config (roadmap step 7) will override this per map.
      */
     World: {
         Width: 1800,
         Height: 1400,
     },
+
+    // ==================== Camera ====================
+
+    /**
+     * Camera follows a virtual target point that exponentially tweens
+     * toward the player each frame. Smoothness is a per-ms rate: the
+     * target closes a fraction (1 - exp(-Smoothness * dt)) of the
+     * remaining distance each tick. Frame-rate independent.
+     *
+     * Reference values:
+     *   0.002 - very soft / cinematic lag (~1s to catch a sprint)
+     *   0.005 - smooth but responsive (default)
+     *   0.012 - tight; barely perceptible lag
+     *   0.05  - effectively rigid (use if you want no smoothing)
+     */
+    Camera: {
+        Smoothness: 0.005,
+
+        /**
+         * Dead zone radius (world pixels): while the player is within this
+         * radius of the virtual target, the target stays put. Set to 0 to
+         * disable and always chase.
+         */
+        DeadZoneRadius: 0,
+    },
+
+    // ==================== Player ====================
+
+    Player: {
+        Size: 36,
+        MoveSpeedPxPerMs: 90 / 1000,
+        HpMax: 100,
+        /** Margin kept from the world edges when the player runs into a wall. */
+        CropMargin: 20,
+        /** 1/sqrt(2), used to clamp diagonal movement to the same speed as cardinal. */
+        DiagonalFactor: 0.707,
+        /** Fraction of speed lost when moving directly away from facing direction (0..1). */
+        BackwardSpeedPenalty: 0.4,
+        /** Sprite pivot (registration point) offset in texture pixels. */
+        RegX: 18,
+        RegY: 15,
+    },
+
+    // ==================== Enemy (Zombie) ====================
+
+    Enemy: {
+        /** Hitbox/draw size before per-spawn scale multiplier. */
+        SizeBase: 24,
+        AngleSpeedPerMs: 60 / 1000,
+        MoveSpeedPerMs: 40 / 1000,
+        /** Sprite pivot in texture pixels (zombie frames are 35x29). */
+        RegX: 15,
+        RegY: 13,
+        /** Base HP + uniform random 0..HpSpread, then multiplied by difficulty factor. */
+        HpBase: 50,
+        HpSpread: 100,
+        /** Minimum gap between successive bites on the player. */
+        AttackCooldownMs: 800,
+        /** Per-bite damage = base + uniform random 0..spread, * difficulty factor. */
+        AttackDamageBase: 6,
+        AttackDamageSpread: 2,
+        /** Alpha added per frame while spawning fade-in (frame-rate dependent - legacy). */
+        SpawnFadeInPerFrame: 0.025,
+        /** Delay between HP reaching 0 and hasDied() returning true, in ms. */
+        DeathDelayMs: 60,
+        /** One blood splatter per this-many-HP of damage dealt. */
+        BloodPerHp: 40,
+        /** Fraction of entity size used as blood splatter scatter radius. */
+        BloodSpreadFactor: 0.6,
+        /** Point value = Base + floor(scale * Scale) on kill, * difficulty factor. */
+        PointValueBase: 5,
+        PointValueScale: 15,
+        /** Uniform random size multiplier applied per spawn. */
+        ScaleMin: 0.75,
+        ScaleMax: 1.5,
+    },
+
+    // ==================== Bullet ====================
+
+    Bullet: {
+        /** Default hitbox radius (collision width = bullet.size + enemy.size*0.4). */
+        DefaultSize: 12,
+        /** Bullet spawns this far in front of the player so it doesn't collide with them. */
+        SpawnOffsetForward: 18,
+        /** Sprite pivot in texture pixels (bullet images are 16x16). */
+        PivotX: 8,
+        PivotY: 8,
+        /** Default trail gradient stops when a weapon doesn't define its own. */
+        DefaultTrailColor: ["#AAAAAA", "#222222"] as [string, string],
+        DefaultTrailWidth: 2,
+    },
+
+    // ==================== Power-ups ====================
+
+    PowerUp: {
+        /** Distance from player centre at which a power-up is picked up. */
+        PickupRadius: 28,
+        /** Sprite pivot in texture pixels. */
+        RegX: 24,
+        RegY: 15,
+        /** Milliseconds the power-up fades in at spawn. */
+        FadeInMs: 200,
+        /** Milliseconds the power-up fades out before expiring. */
+        FadeOutMs: 1600,
+        /** HP restored when picking up a health crate. */
+        HealAmount: 25,
+        /** Point value awarded if a power-up expires un-taken. */
+        PointValue: 100,
+    },
+
+    // ==================== UI / flow ====================
+
+    GameOver: {
+        /** Opacity transition duration for the "Game Over" overlay. */
+        FadeInMs: 2400,
+        /** How long the overlay stays fully visible before the game resets. */
+        HoldBeforeResetMs: 1600,
+    },
+
+    Respawn: {
+        /** Extra spawn-credit granted per zombie kill (speeds up the next wave). */
+        KillSpeedBonusMs: 100,
+        /** Spawn delay shortens by this many ms per spawn-wave index. */
+        NextSpawnStepMs: 4,
+    },
+
+    // ==================== Difficulties ====================
+
     Difficulties: {
         Easy: {
             InitialZombies: 6,
@@ -88,6 +231,9 @@ export const Config = {
             PowerUpLifetime: 6400,
         },
     } satisfies Record<string, IGameDifficulty>,
+
+    // ==================== Visual effects ====================
+
     Effects: {
         Blood: {
             Duration: 40000,

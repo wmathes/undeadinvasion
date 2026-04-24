@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="feat: integrate camera scrolling with PixiJS viewport; expand world size for dynamic gameplay" />
+    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="feat: fix bullet scaling/speed and introduce dynamic background scrolling">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Bullet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Bullet.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/Game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Game.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/entities/Entity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/Entity.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/entities/Player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/Player.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/entities/PowerUp.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/entities/PowerUp.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/weapons/Weapon.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/weapons/Weapon.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,7 +30,7 @@
     <option name="PATCH_PATH" value="" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="88" />
+    <option name="cachedIndexableFilesCount" value="86" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileEditorManager">
@@ -232,7 +242,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1464578910348</updated>
-      <workItem from="1776953160920" duration="8434000" />
+      <workItem from="1776953160920" duration="11765000" />
     </task>
     <task id="LOCAL-00001" summary="init: phase 1 - scaffold only,">
       <option name="closed" value="true" />
@@ -282,7 +292,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776966684200</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="feat: fix bullet scaling/speed and introduce dynamic background scrolling">
+      <option name="closed" value="true" />
+      <created>1776967040945</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1776967040945</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -341,7 +359,8 @@
     <MESSAGE value="init: finished" />
     <MESSAGE value="migrate: remove CreateJS modules; refactor to PixiJS with centralized asset preloader and Web Audio API" />
     <MESSAGE value="feat: integrate camera scrolling with PixiJS viewport; expand world size for dynamic gameplay" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: integrate camera scrolling with PixiJS viewport; expand world size for dynamic gameplay" />
+    <MESSAGE value="feat: fix bullet scaling/speed and introduce dynamic background scrolling" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: fix bullet scaling/speed and introduce dynamic background scrolling" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Scripts/Actions.ts">
