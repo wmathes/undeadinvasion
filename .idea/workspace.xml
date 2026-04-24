@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="feat(package): add postbuild-script">
+    <list default="true" id="c8233032-2df5-430c-a866-ce6a02b8761a" name="Default" comment="chore: rename Scripts/ to scripts/ to match CI path">
       <change beforePath="$PROJECT_DIR$/.github/workflows/release.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/release.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
@@ -235,7 +235,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1464578910348</updated>
-      <workItem from="1776953160920" duration="21543000" />
+      <workItem from="1776953160920" duration="22883000" />
     </task>
     <task id="LOCAL-00001" summary="init: phase 1 - scaffold only,">
       <option name="closed" value="true" />
@@ -341,7 +341,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777053541394</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="chore: rename Scripts/ to scripts/ to match CI path">
+      <option name="closed" value="true" />
+      <created>1777054273612</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1777054273612</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -406,7 +414,8 @@
     <MESSAGE value="feat(ui): replace Knockout with custom signal-based reactive state management for HUD and menu" />
     <MESSAGE value="chore(deps): remove Knockout and related type definitions from bun.lock" />
     <MESSAGE value="feat(package): add postbuild-script" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(package): add postbuild-script" />
+    <MESSAGE value="chore: rename Scripts/ to scripts/ to match CI path" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: rename Scripts/ to scripts/ to match CI path" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Scripts/Actions.ts">
